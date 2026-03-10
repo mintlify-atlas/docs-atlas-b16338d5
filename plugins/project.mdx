@@ -1,0 +1,371 @@
+---
+title: Project Management
+description: Automatic project detection and switching with project.nvim
+---
+
+project.nvim automatically detects project roots and provides quick switching between recent projects through Telescope integration.
+
+## Configuration
+
+Project management is configured in `lua/user/project.lua`.
+
+### Basic Setup
+
+```lua
+setup({
+  active = true,              -- Enable project.nvim
+  manual_mode = false,        -- Auto-detect and change directory
+  detection_methods = { "pattern" },  -- How to detect project root
+  silent_chdir = true,        -- No message when changing directory
+  show_hidden = false,        -- Hide hidden files in Telescope
+  datapath = vim.fn.stdpath("data"),  -- Where to store history
+})
+```
+
+## Project Detection
+
+### Detection Patterns
+
+Projects are detected by these files/directories:
+
+```lua
+patterns = { 
+  ".git",          -- Git repository
+  "_darcs",        -- Darcs repository
+  ".hg",           -- Mercurial repository
+  ".bzr",          -- Bazaar repository
+  ".svn",          -- SVN repository
+  "Makefile",      -- Make projects
+  "package.json",  -- Node.js projects
+}
+```
+
+When you open a file, project.nvim searches upward for these patterns and automatically changes to the project root.
+
+### Detection Methods
+
+Two detection methods are available:
+
+1. **Pattern**: Uses file patterns (configured above)
+2. **LSP**: Uses LSP root directory detection
+
+The configuration uses pattern-based detection to avoid issues with multi-language projects.
+
+## Keybindings
+
+### Project Picker
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<leader>P` | Projects | Open project picker via Telescope |
+
+## Usage
+
+### Opening Projects
+
+```vim
+" Open project picker
+<leader>P
+
+" Search and select a recent project
+" Press Enter to switch to it
+```
+
+### Telescope Integration
+
+The projects extension is loaded for Telescope:
+
+```lua
+telescope.load_extension('projects')
+```
+
+This provides:
+- Fuzzy search through recent projects
+- Preview of project files
+- Quick switching between projects
+
+### Automatic Root Detection
+
+When you open a file, project.nvim automatically:
+
+1. Searches for project root patterns
+2. Changes working directory to project root
+3. Saves project to history
+
+```vim
+" Open a file in a project
+:e ~/code/myapp/src/index.js
+
+" Working directory automatically changes to:
+" ~/code/myapp/
+```
+
+## Commands
+
+### Manual Project Root
+
+```vim
+:ProjectRoot    " Manually set project root
+```
+
+Useful when automatic detection doesn't work as expected.
+
+### Telescope Projects
+
+```vim
+:Telescope projects    " Open project picker
+" Same as <leader>P
+```
+
+## Project Workflow
+
+### Starting Work
+
+1. Open project picker:
+   ```vim
+   <leader>P
+   ```
+
+2. Search for project:
+   ```
+   " Type to filter: "myapp"
+   ```
+
+3. Select and open:
+   ```
+   " Press Enter
+   " Working directory changes to project root
+   ```
+
+4. Find files in project:
+   ```vim
+   <leader>f    " Find files in project
+   <leader>F    " Search text in project
+   ```
+
+### Working Across Projects
+
+```vim
+" Working on project A
+<leader>P       " Open project picker
+" Select project B
+" Now in project B
+
+" All file operations are relative to project B
+<leader>f       " Find files in project B
+:e config.js    " Opens project B's config
+```
+
+## Integration
+
+### With Telescope
+
+Project picker uses Telescope's interface:
+
+- Fuzzy search project names
+- Preview recent files
+- Sort by recent access
+
+### With File Explorer
+
+NvimTree respects project root:
+
+```vim
+<leader>e       " Opens explorer at project root
+```
+
+### With LSP
+
+LSP servers are started at project root, ensuring proper:
+
+- Code completion
+- Go to definition
+- Find references
+- Diagnostics
+
+### With Git
+
+Git commands operate on the project:
+
+```vim
+<leader>gg      " Lazygit opens at project root
+<leader>gf      " Git status for entire project
+```
+
+## Tips and Tricks
+
+### Recent Projects
+
+Projects are sorted by recent access:
+
+```vim
+<leader>P       " Most recent projects appear first
+```
+
+### Quick Switch
+
+Use fuzzy search to switch quickly:
+
+```vim
+<leader>P
+" Type a few letters: "mya"
+" Press Enter
+" Instantly switch to "myapp" project
+```
+
+### Project-Relative Files
+
+All file operations are relative to project root:
+
+```vim
+:e src/utils/helper.js    " Opens from project root
+:cd src/                  " Change to subdirectory
+:cd -                     " Return to project root
+```
+
+### Manual Root Override
+
+If detection is wrong:
+
+```vim
+:cd /correct/project/path
+:ProjectRoot              " Set as project root
+```
+
+## Configuration Options
+
+### Manual Mode
+
+Disable automatic directory changing:
+
+```lua
+manual_mode = true,  -- Don't auto-change directory
+```
+
+Then use `:ProjectRoot` to change manually.
+
+### Custom Patterns
+
+Add custom project markers:
+
+```lua
+patterns = {
+  ".git",
+  "Cargo.toml",      -- Rust projects
+  "go.mod",          -- Go projects
+  "pyproject.toml",  -- Python projects
+  "composer.json",   -- PHP projects
+}
+```
+
+### LSP Detection
+
+Enable LSP-based detection:
+
+```lua
+detection_methods = { "lsp", "pattern" },
+```
+
+LSP detection is tried first, falling back to pattern matching.
+
+### Show Hidden Files
+
+Show hidden files in Telescope picker:
+
+```lua
+show_hidden = true,
+```
+
+### Verbose Mode
+
+Show messages when changing directories:
+
+```lua
+silent_chdir = false,
+```
+
+## Troubleshooting
+
+### Wrong Project Root
+
+If the wrong directory is detected:
+
+1. Check patterns match your project structure
+2. Add custom pattern for your project type
+3. Use `:ProjectRoot` to manually set root
+
+### Project Not in History
+
+Open any file in the project:
+
+```vim
+:e /path/to/project/README.md
+" Project is now added to history
+```
+
+### Directory Not Changing
+
+Check if manual mode is enabled:
+
+```lua
+manual_mode = false,  -- Ensure auto-change is enabled
+```
+
+<Tip>
+  Use `<leader>P` to quickly switch between projects. Type a few letters of the project name and press Enter.
+</Tip>
+
+<Note>
+  Project history persists across Neovim sessions, making it easy to return to recent work.
+</Note>
+
+## Benefits
+
+- **Automatic**: No manual directory management
+- **Fast**: Quick switching via Telescope
+- **Contextual**: All operations relative to project
+- **Persistent**: Project history saved across sessions
+- **Flexible**: Multiple detection methods
+
+## Common Workflows
+
+### Polyglot Developer
+
+Quickly switch between different language projects:
+
+```vim
+<leader>P       " Open picker
+" Select Python project
+" LSP, linting, formatting all for Python
+
+<leader>P       " Open picker again
+" Select Rust project  
+" Tools switch to Rust automatically
+```
+
+### Multiple Related Projects
+
+Work on multiple related codebases:
+
+```vim
+<leader>P       " Switch to frontend project
+" Make changes
+
+<leader>P       " Switch to backend project
+" Update API
+
+<leader>P       " Back to frontend
+" Previous project remembered
+```
+
+### Client Work
+
+Manage multiple client projects:
+
+```vim
+<leader>P       " Filter: "client-a"
+" Work on client A's project
+
+<leader>P       " Filter: "client-b"
+" Switch to client B's project
+```

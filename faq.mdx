@@ -1,0 +1,495 @@
+---
+title: FAQ
+description: Frequently asked questions about Neovim from Scratch
+---
+
+## General Questions
+
+<Accordion title="What is Neovim from Scratch?">
+  Neovim from Scratch is a minimal yet complete Neovim configuration that serves as a foundation for building your own personalized IDE. It includes essential plugins and sensible defaults while remaining easy to understand and customize.
+  
+  The configuration is based on a popular [YouTube tutorial series](https://www.youtube.com/watch?v=ctH-a-1eUME&list=PLhoH5vyxr6Qq41NFL4GvhFp-WLd5xzIzZ) and is maintained with pinned plugin versions for stability.
+</Accordion>
+
+<Accordion title="What version of Neovim do I need?">
+  You need **Neovim v0.8.0 or higher**. Check your version:
+  
+  ```bash
+  nvim -v
+  ```
+  
+  For the best experience, Neovim v0.9.0+ is recommended.
+</Accordion>
+
+<Accordion title="Where should I install this config?">
+  The configuration should be cloned to your Neovim config directory:
+  
+  ```bash
+  git clone https://github.com/LunarVim/Neovim-from-scratch.git ~/.config/nvim
+  ```
+  
+  **Important:** Back up your existing config first!
+  
+  ```bash
+  mv ~/.config/nvim ~/.config/nvim.bak
+  ```
+</Accordion>
+
+<Accordion title="Should I use this config or a distribution like LunarVim?">
+  **Use Neovim from Scratch if:**
+  - You want to learn how Neovim configurations work
+  - You prefer a minimal starting point
+  - You want full control over every aspect
+  - You're following the tutorial series
+  
+  **Use LunarVim if:**
+  - You want a fully-featured, production-ready IDE
+  - You prefer a polished out-of-the-box experience
+  - You want active development and regular updates
+  
+  The creator recommends [nvim-basic-ide](https://github.com/LunarVim/nvim-basic-ide) or [LunarVim](https://www.lunarvim.org/) for production use.
+</Accordion>
+
+<Accordion title="Why are the plugins pinned to specific commits?">
+  All plugins in the `master` branch are pinned to specific commits to ensure stability. The Neovim plugin ecosystem evolves rapidly with frequent breaking changes.
+  
+  Pinned commits mean:
+  - The config remains stable and functional
+  - The video tutorials stay accurate
+  - You won't encounter unexpected breaking changes
+  
+  You can update pins manually if you understand the changes required.
+</Accordion>
+
+## Configuration Questions
+
+<Accordion title="How do I change the colorscheme?">
+  Edit `lua/user/colorscheme.lua`:
+  
+  ```lua
+  local colorscheme = "tokyonight"  -- Change this
+  
+  local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+  if not status_ok then
+    return
+  end
+  ```
+  
+  Available by default:
+  - `tokyonight`
+  - `darkplus`
+  
+  To add more colorschemes, add them to `lua/user/plugins.lua` and run `:PackerSync`.
+</Accordion>
+
+<Accordion title="How do I add my own keybindings?">
+  Add custom keybindings in `lua/user/keymaps.lua`:
+  
+  ```lua
+  local keymap = vim.keymap.set
+  local opts = { noremap = true, silent = true }
+  
+  -- Example: Map jk to escape in insert mode
+  keymap("i", "jk", "<ESC>", opts)
+  
+  -- Example: Quick save with <leader>w
+  keymap("n", "<leader>w", ":w<CR>", opts)
+  ```
+  
+  See the [Keybindings guide](/configuration/keymaps) for more details.
+</Accordion>
+
+<Accordion title="How do I change Neovim options?">
+  Edit `lua/user/options.lua` to customize Neovim behavior:
+  
+  ```lua
+  vim.opt.relativenumber = true     -- Relative line numbers
+  vim.opt.wrap = true               -- Line wrapping
+  vim.opt.tabstop = 4               -- Tab width
+  vim.opt.shiftwidth = 4            -- Indent width
+  ```
+  
+  See `:help options` for all available options.
+</Accordion>
+
+<Accordion title="Where do I configure individual plugins?">
+  Each plugin has its own configuration file in `lua/user/`:
+  
+  - `telescope.lua` - Fuzzy finder settings
+  - `treesitter.lua` - Syntax highlighting
+  - `lsp/` - Language server configuration
+  - `cmp.lua` - Autocompletion
+  - `nvim-tree.lua` - File explorer
+  - And more...
+  
+  Check the [Plugin Configuration guide](/configuration/plugins) for details.
+</Accordion>
+
+<Accordion title="How do I add a new plugin?">
+  1. Add the plugin to `lua/user/plugins.lua`:
+     ```lua
+     use { "author/plugin-name" }
+     ```
+  
+  2. Save the file (`:w`) - Packer will auto-sync
+  
+  3. Or manually run:
+     ```vim
+     :PackerSync
+     ```
+  
+  4. Create a config file in `lua/user/` if needed
+  
+  5. Require it in `init.lua`
+  
+  See the [Plugins guide](/configuration/plugins) for more details.
+</Accordion>
+
+## Plugin Questions
+
+<Accordion title="What is Mason and how do I use it?">
+  Mason is a package manager for LSP servers, linters, formatters, and DAP servers.
+  
+  **Open Mason:**
+  ```vim
+  :Mason
+  ```
+  
+  **Install a language server:**
+  - Navigate with `j`/`k`
+  - Press `i` to install
+  - Press `X` to uninstall
+  - Press `u` to update
+  
+  **Common servers:**
+  - `lua_ls` - Lua
+  - `pyright` - Python  
+  - `tsserver` - TypeScript/JavaScript
+  - `rust_analyzer` - Rust
+  - `gopls` - Go
+</Accordion>
+
+<Accordion title="How do I use Telescope?">
+  Telescope is a fuzzy finder. Default keybindings (leader = space):
+  
+  - `<leader>ff` - Find files
+  - `<leader>fg` - Live grep (search text)
+  - `<leader>fb` - Find buffers
+  - `<leader>fh` - Find help tags
+  
+  For best results, install external dependencies:
+  ```bash
+  # Ubuntu/Debian
+  sudo apt install ripgrep fd-find
+  
+  # macOS
+  brew install ripgrep fd
+  
+  # Arch Linux
+  sudo pacman -S ripgrep fd
+  ```
+</Accordion>
+
+<Accordion title="How do I open the file explorer?">
+  The file explorer (nvim-tree) can be opened with:
+  
+  ```vim
+  <leader>e
+  ```
+  
+  **Navigation:**
+  - `j`/`k` - Move up/down
+  - `Enter` - Open file/folder
+  - `a` - Create new file/folder
+  - `d` - Delete
+  - `r` - Rename
+  - `y` - Copy
+  - `p` - Paste
+  - `?` - Help
+</Accordion>
+
+<Accordion title="How do I use Which-Key?">
+  Which-Key shows available keybindings when you press the leader key.
+  
+  1. Press `<Space>` (leader key)
+  2. Wait ~300ms
+  3. A popup shows available commands
+  4. Press the key for the action you want
+  
+  Example:
+  - Press `<Space>`
+  - See `g` for git commands
+  - Press `g` to see git subcommands
+  - Press `s` to stage the current hunk
+</Accordion>
+
+<Accordion title="What is Treesitter and do I need it?">
+  Treesitter provides:
+  - Better syntax highlighting
+  - Intelligent code navigation
+  - Smart text objects
+  - Context-aware commenting
+  
+  It's highly recommended but optional.
+  
+  **Install parsers:**
+  ```vim
+  :TSInstall python lua javascript typescript
+  ```
+  
+  **Update all parsers:**
+  ```vim
+  :TSUpdate
+  ```
+</Accordion>
+
+## LSP Questions
+
+<Accordion title="How do I add language support?">
+  1. Install the LSP server via Mason:
+     ```vim
+     :Mason
+     ```
+  
+  2. The server should auto-attach when you open a file of that type
+  
+  3. For custom servers, add configuration in `lua/user/lsp/mason.lua`
+  
+  4. Check if it's working:
+     ```vim
+     :LspInfo
+     ```
+</Accordion>
+
+<Accordion title="What LSP features are available?">
+  With LSP attached, you have:
+  
+  - `gd` - Go to definition
+  - `gD` - Go to declaration  
+  - `gr` - Show references
+  - `gi` - Go to implementation
+  - `K` - Show hover documentation
+  - `<leader>rn` - Rename symbol
+  - `<leader>ca` - Code actions
+  - `[d` / `]d` - Navigate diagnostics
+  - `gl` - Show line diagnostics
+  
+  See `:help lsp` for more information.
+</Accordion>
+
+<Accordion title="How do I format code?">
+  This config uses null-ls for formatting.
+  
+  **Format current buffer:**
+  ```vim
+  <leader>f
+  ```
+  
+  **Configure formatters:**
+  
+  Edit `lua/user/lsp/null-ls.lua` to add formatters:
+  ```lua
+  local formatting = null_ls.builtins.formatting
+  
+  local sources = {
+    formatting.prettier,  -- JavaScript/TypeScript
+    formatting.black,     -- Python
+    formatting.stylua,    -- Lua
+  }
+  ```
+  
+  Install formatters via Mason.
+</Accordion>
+
+<Accordion title="Autocompletion isn't working. What's wrong?">
+  Check these items:
+  
+  1. **LSP attached?**
+     ```vim
+     :LspInfo
+     ```
+  
+  2. **nvim-cmp loaded?**
+     ```vim
+     :Lazy check
+     ```
+  
+  3. **Sources configured?**
+     
+     Check `lua/user/cmp.lua` for completion sources.
+  
+  4. **Trigger completion manually:**
+     
+     Press `Ctrl+Space` to manually trigger completions.
+</Accordion>
+
+## Troubleshooting Questions
+
+<Accordion title="I'm getting errors on startup. What should I do?">
+  1. **Run health check:**
+     ```vim
+     :checkhealth
+     ```
+  
+  2. **View error messages:**
+     ```vim
+     :messages
+     ```
+  
+  3. **Reinstall plugins:**
+     ```vim
+     :PackerSync
+     ```
+  
+  4. **Check for deprecation warnings** and update config accordingly
+  
+  See the [Troubleshooting guide](/troubleshooting) for detailed solutions.
+</Accordion>
+
+<Accordion title="Plugins aren't installing. Help!">
+  **Solution 1: Reinstall Packer**
+  ```bash
+  rm -rf ~/.local/share/nvim/site/pack/packer
+  nvim
+  ```
+  
+  **Solution 2: Manual sync**
+  ```vim
+  :PackerSync
+  ```
+  
+  **Solution 3: Check internet connection**
+  
+  Packer needs to download plugins from GitHub.
+  
+  **Solution 4: Check for errors**
+  ```vim
+  :PackerStatus
+  ```
+</Accordion>
+
+<Accordion title="How do I reset to a clean state?">
+  ```bash
+  # Backup current config
+  mv ~/.config/nvim ~/.config/nvim.bak
+  mv ~/.local/share/nvim ~/.local/share/nvim.bak
+  mv ~/.local/state/nvim ~/.local/state/nvim.bak
+  
+  # Clone fresh config
+  git clone https://github.com/LunarVim/Neovim-from-scratch.git ~/.config/nvim
+  
+  # Launch Neovim
+  nvim
+  ```
+  
+  Wait for all plugins to install before closing Neovim.
+</Accordion>
+
+<Accordion title="Copy/paste isn't working with system clipboard">
+  Install a clipboard provider:
+  
+  **Ubuntu/Debian:**
+  ```bash
+  sudo apt install xsel
+  ```
+  
+  **Arch Linux:**
+  ```bash
+  sudo pacman -S xsel
+  ```
+  
+  **Wayland:**
+  ```bash
+  sudo apt install wl-clipboard
+  ```
+  
+  Verify it works:
+  ```vim
+  :checkhealth provider
+  ```
+</Accordion>
+
+## Advanced Questions
+
+<Accordion title="Can I use this config with lazy.nvim instead of Packer?">
+  Yes, but you'll need to migrate the plugin specifications. The structure is similar but lazy.nvim has different syntax.
+  
+  Consider using [nvim-basic-ide](https://github.com/LunarVim/nvim-basic-ide) which uses lazy.nvim and is actively maintained.
+</Accordion>
+
+<Accordion title="How do I update plugin versions?">
+  Plugins are pinned to specific commits for stability. To update:
+  
+  1. Find the plugin in `lua/user/plugins.lua`
+  2. Update the commit hash
+  3. Run `:PackerSync`
+  4. Test thoroughly for breaking changes
+  
+  **Warning:** Updating may introduce breaking changes. Read plugin changelogs first.
+</Accordion>
+
+<Accordion title="Can I use this on Windows?">
+  Yes, but paths will be different:
+  
+  - Config: `~\AppData\Local\nvim\`
+  - Data: `~\AppData\Local\nvim-data\`
+  
+  Some Unix-specific tools may need Windows alternatives (e.g., use `win32yank` for clipboard).
+</Accordion>
+
+<Accordion title="How do I debug my configuration?">
+  **Method 1: Start with no plugins**
+  ```bash
+  nvim --clean
+  ```
+  
+  **Method 2: Enable verbose logging**
+  ```bash
+  nvim -V9log.txt
+  ```
+  
+  **Method 3: Check messages**
+  ```vim
+  :messages
+  ```
+  
+  **Method 4: Profile startup**
+  ```bash
+  nvim --startuptime startup.log
+  cat startup.log
+  ```
+</Accordion>
+
+## Contributing Questions
+
+<Accordion title="How can I contribute?">
+  The project welcomes contributions! Common ways to contribute:
+  
+  - Fix errors in branches with plugin updates
+  - Update deprecated API calls
+  - Improve documentation
+  - Report issues with detailed reproduction steps
+  
+  See the [Contributing guide](/contributing) for the full workflow.
+</Accordion>
+
+<Accordion title="I found a bug. Where do I report it?">
+  Report bugs on the [GitHub Issues page](https://github.com/LunarVim/Neovim-from-scratch/issues).
+  
+  Include:
+  - Neovim version (`:version`)
+  - Branch you're using (`git branch`)
+  - Output of `:checkhealth`
+  - Steps to reproduce
+  - Error messages (`:messages`)
+</Accordion>
+
+<Accordion title="Can I share my modified config?">
+  Absolutely! Many users fork this repo and customize it. Consider:
+  
+  - Creating your own GitHub repository
+  - Documenting your changes
+  - Sharing with the community
+  
+  This is encouraged as a learning experience!
+</Accordion>

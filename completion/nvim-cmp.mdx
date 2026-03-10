@@ -1,0 +1,382 @@
+---
+title: nvim-cmp Completion
+description: Configuring autocompletion with nvim-cmp and LSP integration
+---
+
+nvim-cmp is a powerful completion plugin that provides intelligent autocompletion from multiple sources including LSP, snippets, buffer text, and file paths.
+
+## Overview
+
+The completion configuration is located in `lua/user/cmp.lua` and integrates:
+
+- LSP completions
+- Snippet expansion (LuaSnip)
+- Buffer text completions
+- Path completions
+- Custom icons and formatting
+
+## Configuration
+
+### Basic Setup
+
+```lua title="lua/user/cmp.lua:1"
+local cmp_status_ok, cmp = pcall(require, "cmp")
+if not cmp_status_ok then
+  return
+end
+
+local snip_status_ok, luasnip = pcall(require, "luasnip")
+if not snip_status_ok then
+  return
+end
+
+-- Load VSCode-style snippets
+require("luasnip/loaders/from_vscode").lazy_load()
+```
+
+## Completion Sources
+
+Completion suggestions come from multiple sources:
+
+```lua title="lua/user/cmp.lua:112"
+sources = {
+  { name = "nvim_lsp" },    -- LSP completions
+  { name = "luasnip" },     -- Snippet completions
+  { name = "buffer" },      -- Text from current buffer
+  { name = "path" },        -- File path completions
+}
+```
+
+### Source Priority
+
+Sources are tried in order. LSP has highest priority, followed by snippets, buffer text, and paths.
+
+## Keybindings
+
+### Navigation
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<C-k>` | `select_prev_item()` | Previous suggestion |
+| `<C-j>` | `select_next_item()` | Next suggestion |
+| `<C-b>` | `scroll_docs(-1)` | Scroll docs up |
+| `<C-f>` | `scroll_docs(1)` | Scroll docs down |
+| `<C-Space>` | `complete()` | Trigger completion |
+| `<C-e>` | `abort()/close()` | Close completion menu |
+| `<CR>` | `confirm()` | Accept completion |
+
+### Tab Behavior
+
+Smart tab handling with snippet expansion:
+
+```lua title="lua/user/cmp.lua:68"
+["<Tab>"] = cmp.mapping(function(fallback)
+  if cmp.visible() then
+    cmp.select_next_item()           -- Navigate completion menu
+  elseif luasnip.expandable() then
+    luasnip.expand()                 -- Expand snippet
+  elseif luasnip.expand_or_jumpable() then
+    luasnip.expand_or_jump()         -- Jump to next snippet field
+  elseif check_backspace() then
+    fallback()                       -- Insert tab
+  else
+    fallback()                       -- Default behavior
+  end
+end, { "i", "s" })
+```
+
+### Shift-Tab Behavior
+
+Reverse navigation:
+
+```lua title="lua/user/cmp.lua:84"
+["<S-Tab>"] = cmp.mapping(function(fallback)
+  if cmp.visible() then
+    cmp.select_prev_item()           -- Previous item
+  elseif luasnip.jumpable(-1) then
+    luasnip.jump(-1)                 -- Jump to previous field
+  else
+    fallback()
+  end
+end, { "i", "s" })
+```
+
+## Snippet Integration
+
+### LuaSnip Setup
+
+Snippet engine configuration:
+
+```lua title="lua/user/cmp.lua:49"
+snippet = {
+  expand = function(args)
+    luasnip.lsp_expand(args.body)  -- Expand LSP snippets
+  end,
+}
+```
+
+### Loading Snippets
+
+VSCode-style snippets are loaded automatically:
+
+```lua title="lua/user/cmp.lua:11"
+require("luasnip/loaders/from_vscode").lazy_load()
+```
+
+See the [Snippets Guide](/completion/snippets) for more details.
+
+## Formatting
+
+### Completion Item Icons
+
+Custom icons for different completion types:
+
+```lua title="lua/user/cmp.lua:18"
+local kind_icons = {
+  Text = "󰉿",
+  Method = "󰆧",
+  Function = "󰊕",
+  Constructor = "",
+  Field = " ",
+  Variable = "󰀫",
+  Class = "󰠱",
+  Interface = "",
+  Module = "",
+  Property = "󰜢",
+  Unit = "󰑭",
+  Value = "󰎠",
+  Enum = "",
+  Keyword = "󰌋",
+  Snippet = "",
+  Color = "󰏘",
+  File = "󰈙",
+  Reference = "",
+  Folder = "󰉋",
+  EnumMember = "",
+  Constant = "󰏿",
+  Struct = "",
+  Event = "",
+  Operator = "󰆕",
+  TypeParameter = " ",
+  Misc = " ",
+}
+```
+
+### Format Function
+
+Customize how completions are displayed:
+
+```lua title="lua/user/cmp.lua:97"
+formatting = {
+  fields = { "kind", "abbr", "menu" },
+  format = function(entry, vim_item)
+    -- Show icon for completion kind
+    vim_item.kind = string.format("%s", kind_icons[vim_item.kind])
+    
+    -- Show source name
+    vim_item.menu = ({
+      nvim_lsp = "[LSP]",
+      luasnip = "[Snippet]",
+      buffer = "[Buffer]",
+      path = "[Path]",
+    })[entry.source.name]
+    
+    return vim_item
+  end,
+}
+```
+
+**Result:**
+```
+󰊕 functionName      [LSP]
+ variable          [LSP]
+󰉿 some text         [Buffer]
+ snippetName      [Snippet]
+```
+
+## Window Appearance
+
+### Documentation Window
+
+Rounded border for documentation popup:
+
+```lua title="lua/user/cmp.lua:122"
+window = {
+  documentation = {
+    border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+  },
+}
+```
+
+### Confirm Behavior
+
+```lua title="lua/user/cmp.lua:118"
+confirm_opts = {
+  behavior = cmp.ConfirmBehavior.Replace,
+  select = false,  -- Don't auto-select first item
+}
+```
+
+## Experimental Features
+
+```lua title="lua/user/cmp.lua:127"
+experimental = {
+  ghost_text = false,    -- Disable inline preview
+  native_menu = false,   -- Use custom menu
+}
+```
+
+### Ghost Text
+
+Enable to show completion preview inline:
+
+```lua
+experimental = {
+  ghost_text = true,  -- Show preview of completion
+}
+```
+
+## Helper Functions
+
+### Backspace Check
+
+Determines when Tab should insert a tab character:
+
+```lua title="lua/user/cmp.lua:13"
+local check_backspace = function()
+  local col = vim.fn.col "." - 1
+  return col == 0 or vim.fn.getline("."):sub(col, col):match "%s"
+end
+```
+
+Returns true if:
+- Cursor is at beginning of line
+- Character before cursor is whitespace
+
+## Customization
+
+### Adding More Sources
+
+Add additional completion sources:
+
+```lua
+sources = {
+  { name = "nvim_lsp" },
+  { name = "luasnip" },
+  { name = "buffer" },
+  { name = "path" },
+  { name = "nvim_lua" },  -- Neovim Lua API
+  { name = "spell" },     -- Spell suggestions
+}
+```
+
+### Customizing Source Priority
+
+Use `priority` to control ordering:
+
+```lua
+sources = {
+  { name = "nvim_lsp", priority = 10 },
+  { name = "luasnip", priority = 8 },
+  { name = "buffer", priority = 5 },
+  { name = "path", priority = 3 },
+}
+```
+
+### Changing Keybindings
+
+Edit the mapping table:
+
+```lua
+mapping = {
+  ["<C-n>"] = cmp.mapping.select_next_item(),
+  ["<C-p>"] = cmp.mapping.select_prev_item(),
+  ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+  ["<C-u>"] = cmp.mapping.scroll_docs(4),
+  -- Add your custom mappings
+}
+```
+
+### Filtering Completions
+
+Limit buffer completions to nearby text:
+
+```lua
+sources = {
+  { name = "buffer", 
+    option = {
+      get_bufnrs = function()
+        return vim.api.nvim_list_bufs()
+      end
+    }
+  },
+}
+```
+
+## LSP Integration
+
+Completion capabilities are configured in `lua/user/lsp/handlers.lua:8`:
+
+```lua
+M.capabilities = vim.lsp.protocol.make_client_capabilities()
+M.capabilities.textDocument.completion.completionItem.snippetSupport = true
+M.capabilities = cmp_nvim_lsp.default_capabilities(M.capabilities)
+```
+
+This ensures LSP servers know the client supports:
+- Snippets in completions
+- nvim-cmp specific features
+- Rich completion items
+
+## Troubleshooting
+
+### No Completions Appearing
+
+1. Check LSP is attached:
+   ```vim
+   :LspInfo
+   ```
+
+2. Verify cmp is loaded:
+   ```vim
+   :lua print(vim.inspect(require('cmp')))
+   ```
+
+3. Check sources:
+   ```vim
+   :CmpStatus
+   ```
+
+### Snippets Not Working
+
+Ensure LuaSnip is installed and loaded:
+
+```vim
+:lua print(vim.inspect(require('luasnip')))
+```
+
+### Slow Completions
+
+Limit buffer source to current buffer:
+
+```lua
+{ name = "buffer",
+  option = {
+    get_bufnrs = function()
+      return { vim.api.nvim_get_current_buf() }
+    end
+  }
+}
+```
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Snippets" icon="scissors" href="/completion/snippets">
+    Configure and create code snippets
+  </Card>
+  
+  <Card title="LSP Handlers" icon="gear" href="/lsp/handlers">
+    LSP capabilities and integration
+  </Card>
+</CardGroup>

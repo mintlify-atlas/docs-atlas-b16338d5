@@ -1,0 +1,455 @@
+---
+title: Colorschemes
+description: Learn how to change and customize colorschemes in your Neovim configuration
+---
+
+Neovim from Scratch comes with two colorschemes pre-installed: Tokyo Night and Darkplus. This guide will show you how to switch between them and add new colorschemes.
+
+## Current Colorscheme
+
+The active colorscheme is configured in `lua/user/colorscheme.lua`:
+
+```lua
+local colorscheme = "tokyonight"
+
+local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+if not status_ok then
+  return
+end
+```
+
+## Changing the Colorscheme
+
+### Method 1: Edit Configuration File
+
+**Edit `lua/user/colorscheme.lua`:**
+
+```lua
+local colorscheme = "darkplus"  -- Change to darkplus
+
+local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+if not status_ok then
+  return
+end
+```
+
+**Restart Neovim or reload the config:**
+
+```vim
+:source ~/.config/nvim/init.lua
+```
+
+### Method 2: Temporary Change
+
+Test a colorscheme without saving:
+
+```vim
+:colorscheme tokyonight
+:colorscheme darkplus
+```
+
+### Method 3: Using Telescope
+
+Browse and preview colorschemes interactively:
+
+```
+<leader>sc
+```
+
+Or:
+
+```vim
+:Telescope colorscheme
+```
+
+Use arrow keys to preview, press `<Enter>` to apply.
+
+## Pre-installed Colorschemes
+
+### Tokyo Night
+
+```lua
+local colorscheme = "tokyonight"
+```
+
+A clean, dark theme inspired by Tokyo's night.
+
+**Variants:**
+- `tokyonight` - Default storm variant
+- `tokyonight-night` - Darker variant
+- `tokyonight-day` - Light variant
+
+### Darkplus
+
+```lua
+local colorscheme = "darkplus"
+```
+
+A theme inspired by VS Code's Dark+ theme.
+
+## Adding New Colorschemes
+
+### Step 1: Install the Colorscheme Plugin
+
+Add the colorscheme plugin to `lua/user/plugins.lua`:
+
+```lua
+return packer.startup(function(use)
+  -- Existing plugins...
+  
+  -- Existing colorschemes
+  use { "folke/tokyonight.nvim", commit = "66bfc2e8f754869c7b651f3f47a2ee56ae557764" }
+  use { "lunarvim/darkplus.nvim", commit = "13ef9daad28d3cf6c5e793acfc16ddbf456e1c83" }
+  
+  -- Add new colorscheme
+  use "catppuccin/nvim"
+  
+  -- Rest of plugins...
+end)
+```
+
+### Step 2: Save and Sync
+
+Save the file - Packer will auto-sync. Or manually sync:
+
+```vim
+:PackerSync
+```
+
+### Step 3: Activate the Colorscheme
+
+Edit `lua/user/colorscheme.lua`:
+
+```lua
+local colorscheme = "catppuccin"
+
+local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+if not status_ok then
+  return
+end
+```
+
+### Step 4: Restart Neovim
+
+```bash
+nvim
+```
+
+## Popular Colorschemes
+
+### Catppuccin
+
+```lua
+use "catppuccin/nvim"
+```
+
+```lua
+local colorscheme = "catppuccin"
+```
+
+### Gruvbox
+
+```lua
+use "ellisonleao/gruvbox.nvim"
+```
+
+```lua
+local colorscheme = "gruvbox"
+```
+
+### Nord
+
+```lua
+use "shaunsingh/nord.nvim"
+```
+
+```lua
+local colorscheme = "nord"
+```
+
+### Nightfox
+
+```lua
+use "EdenEast/nightfox.nvim"
+```
+
+```lua
+local colorscheme = "nightfox"
+```
+
+### Kanagawa
+
+```lua
+use "rebelot/kanagawa.nvim"
+```
+
+```lua
+local colorscheme = "kanagawa"
+```
+
+### Rose Pine
+
+```lua
+use "rose-pine/neovim"
+```
+
+```lua
+local colorscheme = "rose-pine"
+```
+
+### Dracula
+
+```lua
+use "Mofiqul/dracula.nvim"
+```
+
+```lua
+local colorscheme = "dracula"
+```
+
+### One Dark
+
+```lua
+use "navarasu/onedark.nvim"
+```
+
+```lua
+local colorscheme = "onedark"
+```
+
+## Advanced Colorscheme Configuration
+
+### Colorscheme with Custom Options
+
+Some colorschemes support configuration options.
+
+**Example: Catppuccin Configuration**
+
+Create `lua/user/catppuccin.lua`:
+
+```lua
+local status_ok, catppuccin = pcall(require, "catppuccin")
+if not status_ok then
+  return
+end
+
+catppuccin.setup({
+  flavour = "mocha", -- latte, frappe, macchiato, mocha
+  transparent_background = false,
+  term_colors = true,
+  integrations = {
+    cmp = true,
+    gitsigns = true,
+    nvimtree = true,
+    telescope = true,
+    treesitter = true,
+  },
+})
+```
+
+Require it before setting the colorscheme in `lua/user/colorscheme.lua`:
+
+```lua
+require("user.catppuccin")  -- Load configuration
+
+local colorscheme = "catppuccin"
+
+local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+if not status_ok then
+  return
+end
+```
+
+**Example: Gruvbox Configuration**
+
+Create `lua/user/gruvbox.lua`:
+
+```lua
+local status_ok, gruvbox = pcall(require, "gruvbox")
+if not status_ok then
+  return
+end
+
+gruvbox.setup({
+  contrast = "hard", -- soft, medium, hard
+  transparent_mode = false,
+  italic = {
+    strings = false,
+    comments = true,
+    operators = false,
+    folds = true,
+  },
+})
+```
+
+### Transparent Background
+
+Many colorschemes support transparent backgrounds:
+
+```lua
+require("colorscheme-name").setup({
+  transparent_background = true,
+})
+```
+
+### Tokyo Night Variants
+
+Tokyo Night has multiple variants:
+
+```lua
+vim.g.tokyonight_style = "storm"  -- storm, night, day
+vim.g.tokyonight_transparent = false
+vim.g.tokyonight_italic_functions = true
+vim.g.tokyonight_sidebars = { "qf", "vista_kind", "terminal", "packer" }
+
+local colorscheme = "tokyonight"
+```
+
+## Using Multiple Colorschemes
+
+### Random Colorscheme on Startup
+
+Create a function in `lua/user/colorscheme.lua`:
+
+```lua
+local colorschemes = { "tokyonight", "darkplus", "catppuccin", "gruvbox" }
+
+math.randomseed(os.time())
+local colorscheme = colorschemes[math.random(#colorschemes)]
+
+local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+if not status_ok then
+  return
+end
+```
+
+### Time-Based Colorscheme
+
+Switch based on time of day:
+
+```lua
+local hour = tonumber(os.date("%H"))
+local colorscheme
+
+if hour >= 6 and hour < 18 then
+  colorscheme = "tokyonight-day"  -- Light theme during day
+else
+  colorscheme = "tokyonight-night"  -- Dark theme at night
+end
+
+local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+if not status_ok then
+  return
+end
+```
+
+### Keymap to Toggle Colorschemes
+
+Add to `lua/user/whichkey.lua`:
+
+```lua
+["sc"] = { "<cmd>Telescope colorscheme<cr>", "Colorscheme" },
+["st"] = { "<cmd>colorscheme tokyonight<cr>", "Tokyo Night" },
+["sd"] = { "<cmd>colorscheme darkplus<cr>", "Darkplus" },
+```
+
+## Customizing Colors
+
+### Override Specific Highlight Groups
+
+Customize individual colors in `lua/user/colorscheme.lua`:
+
+```lua
+local colorscheme = "tokyonight"
+
+local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+if not status_ok then
+  return
+end
+
+-- Custom highlight overrides
+vim.cmd([[
+  highlight Comment gui=italic
+  highlight LineNr guifg=#5c6370
+  highlight CursorLineNr guifg=#abb2bf
+]])
+```
+
+### Using Lua Highlight API
+
+```lua
+vim.api.nvim_set_hl(0, "Comment", { italic = true })
+vim.api.nvim_set_hl(0, "Function", { fg = "#61AFEF", bold = true })
+vim.api.nvim_set_hl(0, "String", { fg = "#98C379" })
+```
+
+## Troubleshooting
+
+### Colorscheme Not Found
+
+**Error:** `colorscheme not found`
+
+1. Verify plugin is installed:
+   ```vim
+   :PackerStatus
+   ```
+
+2. Manually install:
+   ```vim
+   :PackerSync
+   ```
+
+3. Check plugin name in `plugins.lua` matches colorscheme name
+
+### Colors Look Wrong
+
+1. Check terminal supports true colors
+2. Add to `lua/user/options.lua`:
+   ```lua
+   vim.opt.termguicolors = true
+   ```
+
+3. For tmux users, add to `.tmux.conf`:
+   ```
+   set -g default-terminal "screen-256color"
+   set -ga terminal-overrides ",*256col*:Tc"
+   ```
+
+### Transparent Background Not Working
+
+1. Check terminal supports transparency
+2. Enable in colorscheme config:
+   ```lua
+   transparent_background = true
+   ```
+3. May need terminal-specific configuration
+
+### Reverting to Default
+
+If issues occur, revert to default:
+
+```lua
+local colorscheme = "tokyonight"
+
+local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+if not status_ok then
+  vim.cmd("colorscheme default")  -- Fallback to Vim default
+  return
+end
+```
+
+## Best Practices
+
+1. **Use protected call** - Prevents errors if colorscheme isn't installed
+2. **Pin plugin commits** - Ensures consistency (optional for colorschemes)
+3. **Test in terminal** - Ensure your terminal supports the color scheme
+4. **Match your workflow** - Light themes for day, dark for night
+5. **Consider eye strain** - Choose comfortable colors for long sessions
+6. **Integrate with plugins** - Configure colorscheme to support your plugins
+
+## Next Steps
+
+- [Add More Plugins](/customization/adding-plugins)
+- [Customize Keymaps](/customization/custom-keymaps)
+- [Configure LSP Servers](/customization/lsp-servers)
+- Browse [vimcolorschemes.com](https://vimcolorschemes.com/) for more themes

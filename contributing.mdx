@@ -1,0 +1,397 @@
+---
+title: Contributing
+description: How to contribute to Neovim from Scratch
+---
+
+## Overview
+
+Contributions to Neovim from Scratch are welcome! This project is maintained by the community, and your help makes it better for everyone.
+
+<Note>
+Due to the rapidly evolving Neovim plugin ecosystem, there are occasionally errors in branches (particularly `>= 08-treesitter`) caused by plugin updates to names, patterns, and options. Fixing these is a great way to contribute!
+</Note>
+
+## What to Contribute
+
+### Common Areas for Contribution
+
+1. **Fix plugin deprecation warnings**
+   - Update deprecated API calls
+   - Fix outdated patterns and options
+   - Apply fixes from `master` to other branches
+
+2. **Update outdated configurations**
+   - Mason LSP folder structure changes
+   - nvim-cmp window.documentation updates
+   - Nerd Fonts v3.0 icon updates
+
+3. **Improve documentation**
+   - Clarify setup instructions
+   - Add troubleshooting tips
+   - Document common issues
+
+4. **Update plugin versions**
+   - Re-pin plugins to stable versions
+   - Test compatibility with Neovim v0.9+
+   - Verify all functionality works
+
+### Finding Issues
+
+When a plugin updates, instructions can usually be found:
+- In the plugin's vimdoc (typically in `doc/`)
+- In the plugin's README
+- By searching through Issues and Pull Requests on the plugin's GitHub page
+
+<Tip>
+Many fixes from the `master` branch can simply be re-applied to other branches. It's a great way to practice contributing!
+</Tip>
+
+## Common Issues to Fix
+
+Here are some recurring issues that may need attention:
+
+### 1. Mason LSP Changes
+
+When Mason was introduced, the LSP folder structure changed.
+
+**Fix:** Update `lua/user/lsp/` files to use the new Mason structure.
+
+### 2. nvim-cmp Deprecation Warning
+
+```
+[nvim-cmp] Please use window.documentation = cmp.config.window.bordered() instead.
+```
+
+**Fix:** Update `lua/user/cmp.lua`:
+```lua
+-- Old
+window = {
+  documentation = "native",
+}
+
+-- New
+window = {
+  documentation = cmp.config.window.bordered(),
+}
+```
+
+### 3. cmp-nvim-lsp Deprecation Warning
+
+```
+cmp_nvim_lsp.update_capabilities is deprecated, use cmp_nvim_lsp.default_capabilities instead.
+```
+
+**Fix:** Update `lua/user/lsp/handlers.lua`:
+```lua
+-- Old
+local capabilities = require("cmp_nvim_lsp").update_capabilities(
+  vim.lsp.protocol.make_client_capabilities()
+)
+
+-- New
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+```
+
+### 4. Nerd Fonts v3.0 Icons
+
+Nerd Fonts v3.0 changed some icon codes.
+
+**Fix:** Update icon definitions in:
+- `lua/user/lualine.lua`
+- `lua/user/nvim-tree.lua`
+- `lua/user/gitsigns.lua`
+- `lua/user/alpha.lua`
+
+### 5. Plugin Version Updates
+
+Plugins may need to be pinned to later versions for compatibility with Neovim v0.9+.
+
+**Fix:** Update commit hashes in `lua/user/plugins.lua` to match stable versions from [nvim-basic-ide](https://github.com/LunarVim/nvim-basic-ide/tree/master/lua/user).
+
+## Contribution Workflow
+
+### 1. Fork the Project
+
+1. Navigate to [Neovim-from-scratch](https://github.com/LunarVim/Neovim-from-scratch)
+2. Click **Fork**
+3. **Uncheck** "Copy the master branch only" to get all branches
+
+![Fork example](https://user-images.githubusercontent.com/63325246/138092106-83ca7ed0-1ec3-4d01-a90c-ae3362bef4f5.jpg)
+
+### 2. Clone to Your Machine
+
+Clone your forked repository:
+
+```bash
+# Back up your current config first!
+mv ~/.config/nvim ~/.config/nvim.bak
+
+# Clone your fork
+git clone git@github.com:YOUR-USERNAME/Neovim-from-scratch.git ~/.config/nvim
+```
+
+<Warning>
+Replace `YOUR-USERNAME` with your actual GitHub username.
+</Warning>
+
+### 3. Sync Your Fork
+
+If you created the fork earlier, ensure it's up-to-date:
+
+**Option 1: GitHub UI**
+
+Click the **Sync Fork** button on your repository page.
+
+**Option 2: Command Line**
+
+```bash
+cd ~/.config/nvim
+
+# Add upstream remote
+git remote add upstream git@github.com:LunarVim/Neovim-from-scratch.git
+
+# Fetch latest changes
+git fetch upstream
+
+# Switch to the branch you want to work on
+git checkout 11-gitsigns
+
+# Merge upstream changes
+git merge upstream/11-gitsigns
+```
+
+### 4. Create a New Branch
+
+Create a branch for your changes:
+
+```bash
+git branch fix-11-gitsigns
+```
+
+Use a descriptive name that indicates:
+- What you're fixing
+- Which branch it's for
+
+**Examples:**
+- `fix-cmp-deprecation-08-treesitter`
+- `update-mason-lsp-15-lsp`
+- `update-nerdfonts-icons-master`
+
+### 5. Make Your Changes
+
+Switch to your new branch and start editing:
+
+```bash
+git checkout fix-11-gitsigns
+nvim
+```
+
+**Tips:**
+- Make focused, atomic changes
+- Fix one issue at a time
+- Follow existing code style
+- Test thoroughly
+
+### 6. Test Your Changes
+
+Testing is crucial:
+
+```bash
+# Save and quit
+:wq
+
+# Reopen Neovim to test
+nvim ~/.config/nvim
+```
+
+**Testing checklist:**
+- [ ] No errors on startup
+- [ ] `:checkhealth` passes
+- [ ] Affected plugins work correctly
+- [ ] Keybindings still function
+- [ ] LSP features work (if applicable)
+- [ ] No deprecation warnings
+
+### 7. Commit Your Changes
+
+Commit with a clear message:
+
+```bash
+git add .
+git commit -m "fix: replace outdated GitSigns icons for Nerd Fonts v3.0"
+```
+
+**Good commit messages:**
+- `fix: update cmp window.documentation to bordered()`
+- `fix: replace deprecated update_capabilities with default_capabilities`  
+- `chore: update plugin pins to match nvim-basic-ide`
+- `docs: clarify Mason installation steps`
+
+**Commit message format:**
+```
+type: brief description
+
+- Detailed explanation (if needed)
+- Why the change was necessary
+- What was changed
+```
+
+**Types:**
+- `fix:` - Bug fixes
+- `feat:` - New features
+- `docs:` - Documentation changes
+- `chore:` - Maintenance tasks
+- `refactor:` - Code refactoring
+
+### 8. Push to Your Fork
+
+Push your branch to GitHub:
+
+```bash
+git push origin fix-11-gitsigns
+```
+
+### 9. Open a Pull Request
+
+1. Go to your fork on GitHub
+2. Click **Contribute** → **Open pull request**
+3. Select your branch from the dropdown
+4. Fill out the PR description
+
+**PR Description Template:**
+
+```markdown
+## Description
+
+Brief summary of changes
+
+## Related Issues
+
+Fixes #123
+Related to #456
+
+## Changes Made
+
+- Updated deprecated cmp API
+- Fixed Nerd Fonts v3.0 icons
+- Updated plugin pins
+
+## Testing
+
+- [x] Tested on Neovim v0.9.0
+- [x] No errors on startup
+- [x] All affected features work correctly
+- [x] `:checkhealth` passes
+
+## Branch
+
+11-gitsigns
+```
+
+**Important:** Always reference related issues using `Fixes #issue-number` or `Related to #issue-number`.
+
+## Pull Request Guidelines
+
+### What Makes a Good PR
+
+✅ **Good:**
+- Fixes a specific issue
+- Well-tested changes
+- Clear commit messages
+- References related issues
+- Focused on one problem
+- Includes explanation of changes
+
+❌ **Avoid:**
+- Multiple unrelated changes
+- Untested changes
+- Vague commit messages
+- No issue references
+- Breaking existing functionality
+- Large refactors without discussion
+
+### Code Style
+
+Follow the existing code style:
+
+- **Indentation:** 2 spaces (Lua)
+- **Line length:** ~100 characters
+- **Comments:** Use for complex logic
+- **Naming:** snake_case for Lua, kebab-case for files
+
+### Testing Requirements
+
+Before submitting:
+
+1. **Test on a clean install:**
+   ```bash
+   rm -rf ~/.local/share/nvim
+   nvim
+   ```
+
+2. **Run health checks:**
+   ```vim
+   :checkhealth
+   ```
+
+3. **Test affected functionality:**
+   - Open relevant files
+   - Use affected features
+   - Verify no errors
+
+4. **Check for warnings:**
+   ```vim
+   :messages
+   ```
+
+## Getting Help
+
+### Where to Ask Questions
+
+- **General support:** [Matrix channels](https://matrix.to/#/#neovim-atmachine:matrix.org)
+- **Bug reports:** [GitHub Issues](https://github.com/LunarVim/Neovim-from-scratch/issues)
+- **Plugin-specific:** Check the plugin's repository
+
+### Resources
+
+- **Neovim documentation:** `:help`
+- **Lua guide:** `:help lua-guide`
+- **LSP documentation:** `:help lsp`
+- **Plugin docs:** Usually in `doc/` folder or README
+
+## Recognition
+
+<Tip>
+Every contribution, no matter how small, is valuable and appreciated! 🎉
+</Tip>
+
+Contributors are:
+- Listed in the repository's contributor graph
+- Acknowledged in release notes for significant contributions
+- Helping thousands of Neovim users
+
+## After Your PR is Merged
+
+Once your PR is merged:
+
+1. **Update your fork:**
+   ```bash
+   git checkout master
+   git fetch upstream
+   git merge upstream/master
+   git push origin master
+   ```
+
+2. **Delete your feature branch:**
+   ```bash
+   git branch -d fix-11-gitsigns
+   git push origin --delete fix-11-gitsigns
+   ```
+
+3. **Celebrate!** You've made a valuable contribution! 🎉🎊
+
+## Thank You!
+
+Your contributions make Neovim from Scratch better for everyone. Whether you're fixing a typo, updating a plugin, or adding new features, your effort is appreciated.
+
+**Happy contributing!** 🤓

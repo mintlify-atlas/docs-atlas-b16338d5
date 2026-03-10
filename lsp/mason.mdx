@@ -1,0 +1,207 @@
+---
+title: Mason LSP Installer
+description: Managing LSP server installation with Mason and mason-lspconfig
+---
+
+Mason provides a user-friendly interface for installing and managing LSP servers, formatters, linters, and DAP adapters.
+
+## Configuration
+
+The Mason setup is located in `lua/user/lsp/mason.lua`.
+
+### Server List
+
+Define which LSP servers to automatically install:
+
+```lua title="lua/user/lsp/mason.lua" {1-3,6,8}
+local servers = {
+  "lua_ls",
+  -- "cssls",
+  -- "html",
+  -- "tsserver",
+  "pyright",
+  -- "bashls",
+  "jsonls",
+  -- "yamlls",
+}
+```
+
+### Mason Settings
+
+Customize the Mason UI and behavior:
+
+```lua title="lua/user/lsp/mason.lua"
+local settings = {
+  ui = {
+    border = "none",
+    icons = {
+      package_installed = "◍",
+      package_pending = "◍",
+      package_uninstalled = "◍",
+    },
+  },
+  log_level = vim.log.levels.INFO,
+  max_concurrent_installers = 4,
+}
+```
+
+### Initialization
+
+```lua title="lua/user/lsp/mason.lua"
+require("mason").setup(settings)
+require("mason-lspconfig").setup({
+  ensure_installed = servers,
+  automatic_installation = true,
+})
+```
+
+## Server Configuration
+
+Each server is configured with handlers and capabilities:
+
+```lua title="lua/user/lsp/mason.lua" {2-5}
+for _, server in pairs(servers) do
+  opts = {
+    on_attach = require("user.lsp.handlers").on_attach,
+    capabilities = require("user.lsp.handlers").capabilities,
+  }
+
+  server = vim.split(server, "@")[1]
+
+  -- Load server-specific settings if available
+  local require_ok, conf_opts = pcall(require, "user.lsp.settings." .. server)
+  if require_ok then
+    opts = vim.tbl_deep_extend("force", conf_opts, opts)
+  end
+
+  lspconfig[server].setup(opts)
+end
+```
+
+## Adding New LSP Servers
+
+### Step 1: Add to Server List
+
+Uncomment or add a new server to the `servers` table:
+
+```lua title="lua/user/lsp/mason.lua"
+local servers = {
+  "lua_ls",
+  "pyright",
+  "jsonls",
+  "tsserver",  -- Added TypeScript support
+}
+```
+
+### Step 2: Create Server Settings (Optional)
+
+For custom configuration, create a settings file:
+
+```lua title="lua/user/lsp/settings/tsserver.lua"
+return {
+  settings = {
+    typescript = {
+      inlayHints = {
+        includeInlayParameterNameHints = "all",
+        includeInlayFunctionParameterTypeHints = true,
+      },
+    },
+  },
+}
+```
+
+### Step 3: Restart Neovim
+
+Mason will automatically install the new server on next launch.
+
+## Server-Specific Settings
+
+The configuration includes custom settings for several servers:
+
+### Lua Language Server
+
+Configured for Neovim development in `lua/user/lsp/settings/lua_ls.lua:1`:
+
+```lua
+return {
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { "vim" },  -- Recognize 'vim' global
+      },
+      workspace = {
+        library = {
+          [vim.fn.expand("$VIMRUNTIME/lua")] = true,
+          [vim.fn.stdpath("config") .. "/lua"] = true,
+        },
+      },
+    },
+  },
+}
+```
+
+### Pyright
+
+Python type checking configured in `lua/user/lsp/settings/pyright.lua:1`:
+
+```lua
+return {
+  settings = {
+    python = {
+      analysis = {
+        typeCheckingMode = "off",
+      },
+    },
+  },
+}
+```
+
+### JSON Language Server
+
+Includes extensive schema validation in `lua/user/lsp/settings/jsonls.lua:1`:
+
+- TypeScript config (tsconfig.json)
+- Package.json
+- ESLint, Prettier, Babel configs
+- AWS CloudFormation templates
+- GitHub workflow templates
+- And many more...
+
+## Mason Commands
+
+| Command | Description |
+|---------|-------------|
+| `:Mason` | Open Mason UI |
+| `:MasonInstall <server>` | Install a specific server |
+| `:MasonUninstall <server>` | Remove a server |
+| `:MasonUpdate` | Update all installed packages |
+| `:LspInfo` | Show attached LSP servers |
+| `:LspInstallInfo` | Show Mason install info |
+
+## Troubleshooting
+
+### Server Not Starting
+
+1. Check if installed: `:Mason`
+2. View LSP logs: `:LspInfo`
+3. Check file type: `:set filetype?`
+
+### Installation Fails
+
+Increase log level for debugging:
+
+```lua
+log_level = vim.log.levels.DEBUG,
+```
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="LSP Handlers" icon="gear" href="/lsp/handlers">
+    Configure LSP keybindings and behavior
+  </Card>
+  
+  <Card title="Null-ls Setup" icon="circle-check" href="/lsp/null-ls">
+    Add formatters and linters
+  </Card>
+</CardGroup>

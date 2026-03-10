@@ -1,0 +1,162 @@
+---
+title: Treesitter
+description: Advanced syntax highlighting and code analysis with Treesitter
+---
+
+Treesitter provides superior syntax highlighting, indentation, and code understanding through incremental parsing.
+
+## Configuration
+
+Treesitter is configured in `lua/user/treesitter.lua`.
+
+### Language Parsers
+
+The configuration automatically installs and maintains parsers for:
+
+```lua
+ensure_installed = { "lua", "markdown", "markdown_inline", "bash", "python" }
+```
+
+<Note>
+  You can add more languages to the `ensure_installed` list or use `"all"` to install all available parsers.
+</Note>
+
+## Features
+
+### Syntax Highlighting
+
+Treesitter provides context-aware syntax highlighting that understands code structure:
+
+```lua
+highlight = {
+  enable = true,
+  disable = { "css" },  -- Disable for specific languages if needed
+}
+```
+
+### Smart Indentation
+
+Automatic indentation based on code structure:
+
+```lua
+indent = { 
+  enable = true, 
+  disable = { "python", "css" } 
+}
+```
+
+Python indentation is disabled because it uses significant whitespace, and CSS is disabled to avoid conflicts.
+
+### Auto-pairs Integration
+
+Treesitter integrates with nvim-autopairs for context-aware bracket pairing:
+
+```lua
+autopairs = {
+  enable = true,
+}
+```
+
+### Context Commentstring
+
+Intelligent comment detection based on language context:
+
+```lua
+context_commentstring = {
+  enable = true,
+  enable_autocmd = false,
+}
+```
+
+This enables proper commenting in files with mixed languages (like HTML with embedded JavaScript).
+
+## Installing Language Parsers
+
+### Manual Installation
+
+Install a specific parser:
+
+```vim
+:TSInstall javascript
+:TSInstall typescript
+:TSInstall rust
+```
+
+### Update Parsers
+
+Update all installed parsers:
+
+```vim
+:TSUpdate
+```
+
+### View Installed Parsers
+
+```vim
+:TSInstallInfo
+```
+
+## Supported Languages
+
+Treesitter supports over 100 languages. Common ones include:
+
+- JavaScript/TypeScript
+- Python
+- Rust
+- Go
+- C/C++
+- Java
+- Ruby
+- PHP
+- HTML/CSS
+- Markdown
+- JSON/YAML
+- And many more
+
+## Usage
+
+### Highlighting
+
+Treesitter highlighting is automatic once parsers are installed. No additional configuration needed.
+
+### Folding
+
+Treesitter can be used for code folding:
+
+```lua
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+```
+
+## Troubleshooting
+
+### Highlighting Issues
+
+If syntax highlighting isn't working:
+
+1. Check if the parser is installed: `:TSInstallInfo`
+2. Try reinstalling: `:TSInstall! <language>`
+3. Restart Neovim
+
+### Performance
+
+For very large files, you may want to disable Treesitter:
+
+```vim
+:TSBufDisable highlight
+```
+
+<Warning>
+  Some language parsers may conflict with existing syntax plugins. Disable the old plugin if you experience issues.
+</Warning>
+
+## Benefits
+
+<Tip>
+  Treesitter provides accurate syntax highlighting even for complex nested structures, unlike regex-based highlighting.
+</Tip>
+
+- **Accurate**: Understands code structure, not just patterns
+- **Fast**: Incremental parsing updates only changed parts
+- **Extensible**: Foundation for other features like refactoring
+- **Consistent**: Same highlighting across different file types

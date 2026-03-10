@@ -1,0 +1,366 @@
+---
+title: Prerequisites
+description: System requirements and dependencies for Neovim from Scratch
+---
+
+## Required Software
+
+Before installing Neovim from Scratch, ensure you have the following requirements met:
+
+### Neovim Version
+
+<Warning>
+Neovim from Scratch requires **Neovim v0.8.0 or higher**. The configuration uses modern Lua APIs and plugins that depend on recent Neovim features.
+</Warning>
+
+Check your Neovim version:
+
+```bash
+nvim --version
+```
+
+You should see output like:
+
+```
+NVIM v0.9.0
+Build type: Release
+LuaJIT 2.1.0-beta3
+```
+
+If you're running an older version, see [Upgrading Neovim](#upgrading-neovim) below.
+
+### Git
+
+Git is required for cloning the repository and for Packer to install plugins:
+
+```bash
+git --version
+```
+
+## Essential Dependencies
+
+### Nerd Fonts
+
+<Note>
+The configuration requires **Nerd Fonts v3.0.0 or higher**. Using an older version will result in missing or incorrect glyphs in the UI.
+</Note>
+
+Nerd Fonts provide the icons used throughout the interface for file types, git status, and UI elements.
+
+**Installation:**
+
+1. Download a Nerd Font from [https://www.nerdfonts.com/](https://www.nerdfonts.com/)
+2. Popular choices include:
+   - JetBrains Mono Nerd Font
+   - FiraCode Nerd Font
+   - Hack Nerd Font
+3. Install the font on your system
+4. Configure your terminal to use the Nerd Font
+
+### C Compiler
+
+A C compiler is required for Treesitter to build language parsers:
+
+<CodeGroup>
+```bash Ubuntu/Debian
+sudo apt install build-essential
+```
+
+```bash Arch Linux
+sudo pacman -S base-devel
+```
+
+```bash macOS
+xcode-select --install
+```
+
+```bash Fedora
+sudo dnf groupinstall "Development Tools"
+```
+</CodeGroup>
+
+### Node.js (Optional but Recommended)
+
+Node.js enables additional LSP servers and Neovim features:
+
+```bash
+node --version
+```
+
+<Note>
+Consider using a Node version manager like [fnm](https://github.com/Schniz/fnm) or nvm for easier Node.js management.
+</Note>
+
+**Install fnm (recommended):**
+
+```bash
+curl -fsSL https://fnm.vercel.app/install | bash
+fnm install --lts
+```
+
+### Python 3 (Optional but Recommended)
+
+Python support enables Python-based plugins and features:
+
+```bash
+python3 --version
+```
+
+## Upgrading Neovim
+
+If you need to upgrade to Neovim v0.8.0 or higher:
+
+### Using Package Managers
+
+<CodeGroup>
+```bash Ubuntu/Debian (via PPA)
+sudo add-apt-repository ppa:neovim-ppa/unstable
+sudo apt update
+sudo apt install neovim
+```
+
+```bash Arch Linux
+sudo pacman -S neovim
+```
+
+```bash macOS (Homebrew)
+brew install neovim
+```
+
+```bash Fedora
+sudo dnf install neovim
+```
+</CodeGroup>
+
+### Building from Source
+
+For the latest version, build from source:
+
+<Steps>
+  <Step title="Install Build Dependencies">
+    <CodeGroup>
+    ```bash Ubuntu/Debian
+    sudo apt install ninja-build gettext cmake unzip curl
+    ```
+
+    ```bash Arch Linux
+    sudo pacman -S base-devel cmake unzip ninja curl
+    ```
+
+    ```bash macOS
+    brew install ninja cmake gettext curl
+    ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Clone and Build Neovim">
+    ```bash
+    git clone https://github.com/neovim/neovim.git
+    cd neovim
+    git checkout release-0.9
+    make CMAKE_BUILD_TYPE=Release
+    sudo make install
+    ```
+  </Step>
+
+  <Step title="Verify Installation">
+    ```bash
+    nvim -v
+    ```
+
+    You should see version 0.9 or higher.
+  </Step>
+</Steps>
+
+### Updating Existing Source Build
+
+If you previously built from source and need to update:
+
+```bash
+cd /path/to/neovim
+git pull
+git checkout release-0.9
+make distclean && make CMAKE_BUILD_TYPE=Release
+sudo make install
+nvim -v
+```
+
+## Get Healthy
+
+After installing Neovim and its dependencies, run Neovim's built-in health check to identify any remaining issues:
+
+```vim
+:checkhealth
+```
+
+This command analyzes your Neovim installation and reports on:
+- Provider support (clipboard, Python, Node.js, etc.)
+- Plugin health
+- System integration
+
+### Common Health Issues and Fixes
+
+#### Clipboard Support
+
+The health check may report missing clipboard support. Fix this based on your system:
+
+<CodeGroup>
+```bash Ubuntu/Debian
+sudo apt install xsel
+# or
+sudo apt install xclip
+```
+
+```bash Arch Linux
+sudo pacman -S xsel
+# or
+sudo pacman -S xclip
+```
+
+```bash macOS
+# pbcopy/pbpaste are built-in
+# No action needed
+```
+
+```bash Wayland
+# Install wl-clipboard for Wayland
+sudo apt install wl-clipboard  # Debian/Ubuntu
+sudo pacman -S wl-clipboard    # Arch
+```
+</CodeGroup>
+
+After installing clipboard support, the configuration's clipboard integration will work automatically thanks to this setting:
+
+```lua title="lua/user/options.lua"
+clipboard = "unnamedplus"  -- allows neovim to access the system clipboard
+```
+
+#### Python Provider
+
+Install Python support for Neovim:
+
+```bash
+pip install pynvim
+# or with pip3
+pip3 install pynvim
+```
+
+If you use virtual environments, install pynvim in your global Python environment or configure Neovim to use a specific Python:
+
+```lua
+-- Add to your config if needed
+vim.g.python3_host_prog = '/usr/bin/python3'
+```
+
+#### Node.js Provider
+
+Install Node.js support for Neovim:
+
+```bash
+npm install -g neovim
+```
+
+This enables features in plugins that use Node.js, such as certain LSP servers and extensions.
+
+#### Perl Provider (Optional)
+
+Most users don't need Perl support, but if required:
+
+```bash
+cpanm Neovim::Ext
+# or
+sudo cpan -i Neovim::Ext
+```
+
+#### Ruby Provider (Optional)
+
+Most users don't need Ruby support, but if required:
+
+```bash
+gem install neovim
+```
+
+## Verifying Dependencies
+
+Create a quick checklist to ensure you have everything:
+
+<Steps>
+  <Step title="Check Neovim Version">
+    ```bash
+    nvim --version | head -n 1
+    ```
+    Should show v0.8.0 or higher.
+  </Step>
+
+  <Step title="Check Git">
+    ```bash
+    git --version
+    ```
+    Any recent version is fine.
+  </Step>
+
+  <Step title="Check C Compiler">
+    ```bash
+    gcc --version
+    # or
+    clang --version
+    ```
+  </Step>
+
+  <Step title="Check Node.js (Optional)">
+    ```bash
+    node --version
+    npm --version
+    ```
+  </Step>
+
+  <Step title="Check Python (Optional)">
+    ```bash
+    python3 --version
+    pip3 --version
+    ```
+  </Step>
+
+  <Step title="Verify Nerd Font">
+    Open your terminal and check if icons display correctly:
+    ```bash
+    echo "󰈔   "
+    ```
+    If you see proper icons (not boxes or missing characters), your Nerd Font is working.
+  </Step>
+</Steps>
+
+## Platform-Specific Notes
+
+### Windows (WSL)
+
+For Windows users, it's recommended to use Neovim from Scratch within WSL (Windows Subsystem for Linux):
+
+1. Install WSL 2
+2. Install a Linux distribution (Ubuntu recommended)
+3. Follow the Ubuntu installation instructions within WSL
+4. Use a terminal that supports Nerd Fonts (Windows Terminal, Alacritty, etc.)
+
+### macOS
+
+On macOS:
+- Use Homebrew for easy dependency management
+- Terminal.app supports Nerd Fonts but consider iTerm2 or Alacritty for better features
+- Clipboard support (pbcopy/pbpaste) works out of the box
+
+### Linux
+
+- If using Wayland, ensure you have `wl-clipboard` instead of `xsel`/`xclip`
+- Some distributions package older Neovim versions; use a PPA or build from source for the latest
+- Terminal emulator matters: Alacritty, Kitty, and WezTerm have excellent Neovim support
+
+## Ready to Install
+
+Once you've completed these prerequisites and verified your dependencies:
+
+1. Your system meets the minimum requirements
+2. You have Neovim v0.8.0 or higher installed
+3. Essential dependencies (Git, C compiler, Nerd Fonts) are in place
+4. Optional providers (Python, Node.js) are configured
+
+You're ready to proceed to the [Installation](/installation) guide!

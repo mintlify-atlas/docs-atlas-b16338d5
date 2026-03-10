@@ -1,0 +1,254 @@
+---
+title: LSP Handlers
+description: Configure LSP keybindings, diagnostics, and client behavior
+---
+
+The handlers module configures how LSP servers interact with Neovim, including keybindings, diagnostics display, and client capabilities.
+
+## Module Structure
+
+The handlers are defined in `lua/user/lsp/handlers.lua` as a Lua module:
+
+```lua
+local M = {}
+
+-- Capabilities configuration
+M.capabilities = ...
+
+-- Setup diagnostics and UI
+M.setup = function() ... end
+
+-- Attach keymaps and features
+M.on_attach = function(client, bufnr) ... end
+
+return M
+```
+
+## Capabilities
+
+Capabilities define what features the LSP client supports:
+
+```lua title="lua/user/lsp/handlers.lua:8"
+M.capabilities = vim.lsp.protocol.make_client_capabilities()
+M.capabilities.textDocument.completion.completionItem.snippetSupport = true
+M.capabilities = cmp_nvim_lsp.default_capabilities(M.capabilities)
+```
+
+This configuration:
+- Enables snippet support for completions
+- Integrates with nvim-cmp for enhanced completions
+- Provides base LSP protocol capabilities
+
+## Setup Function
+
+Called once during LSP initialization in `lua/user/lsp/init.lua:7`.
+
+### Diagnostic Signs
+
+Custom icons for diagnostic messages:
+
+```lua title="lua/user/lsp/handlers.lua:13"
+local signs = {
+  { name = "DiagnosticSignError", text = "" },
+  { name = "DiagnosticSignWarn", text = "" },
+  { name = "DiagnosticSignHint", text = "" },
+  { name = "DiagnosticSignInfo", text = "" },
+}
+
+for _, sign in ipairs(signs) do
+  vim.fn.sign_define(sign.name, { 
+    texthl = sign.name, 
+    text = sign.text, 
+    numhl = "" 
+  })
+end
+```
+
+### Diagnostic Configuration
+
+```lua title="lua/user/lsp/handlers.lua:25"
+local config = {
+  virtual_text = false,        -- Disable inline diagnostics
+  signs = {
+    active = signs,            -- Show signs in gutter
+  },
+  update_in_insert = true,     -- Update diagnostics in insert mode
+  underline = true,            -- Underline problematic code
+  severity_sort = true,        -- Sort by severity
+  float = {
+    focusable = true,
+    style = "minimal",
+    border = "rounded",
+    source = "always",         -- Show diagnostic source
+    header = "",
+    prefix = "",
+  },
+}
+
+vim.diagnostic.config(config)
+```
+
+### Handler Overrides
+
+Customize hover and signature help appearance:
+
+```lua title="lua/user/lsp/handlers.lua:45"
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+  vim.lsp.handlers.hover, 
+  { border = "rounded" }
+)
+
+vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+  vim.lsp.handlers.signature_help, 
+  { border = "rounded" }
+)
+```
+
+## LSP Keybindings
+
+Automatic buffer-local keymaps when LSP attaches:
+
+### Navigation
+
+| Keymap | Command | Description |
+|--------|---------|-------------|
+| `gD` | `vim.lsp.buf.declaration()` | Go to declaration |
+| `gd` | `vim.lsp.buf.definition()` | Go to definition |
+| `gI` | `vim.lsp.buf.implementation()` | Go to implementation |
+| `gr` | `vim.lsp.buf.references()` | List references |
+
+### Information
+
+| Keymap | Command | Description |
+|--------|---------|-------------|
+| `K` | `vim.lsp.buf.hover()` | Show hover documentation |
+| `gl` | `vim.diagnostic.open_float()` | Open diagnostic float |
+| `<leader>ls` | `vim.lsp.buf.signature_help()` | Show signature help |
+
+### Code Actions
+
+| Keymap | Command | Description |
+|--------|---------|-------------|
+| `<leader>la` | `vim.lsp.buf.code_action()` | Show code actions |
+| `<leader>lr` | `vim.lsp.buf.rename()` | Rename symbol |
+| `<leader>lf` | `vim.lsp.buf.format{ async = true }` | Format document |
+
+### Diagnostics
+
+| Keymap | Command | Description |
+|--------|---------|-------------|
+| `<leader>lj` | `vim.diagnostic.goto_next()` | Next diagnostic |
+| `<leader>lk` | `vim.diagnostic.goto_prev()` | Previous diagnostic |
+| `<leader>lq` | `vim.diagnostic.setloclist()` | Send to location list |
+
+### Information
+
+| Keymap | Command | Description |
+|--------|---------|-------------|
+| `<leader>li` | `:LspInfo` | Show LSP info |
+| `<leader>lI` | `:LspInstallInfo` | Show Mason install info |
+
+## On Attach Function
+
+Called when an LSP server attaches to a buffer:
+
+```lua title="lua/user/lsp/handlers.lua:74"
+M.on_attach = function(client, bufnr)
+  -- Disable formatting for specific servers
+  if client.name == "tsserver" then
+    client.server_capabilities.documentFormattingProvider = false
+  end
+
+  if client.name == "sumneko_lua" then
+    client.server_capabilities.documentFormattingProvider = false
+  end
+
+  -- Setup buffer keymaps
+  lsp_keymaps(bufnr)
+  
+  -- Enable illuminate for symbol highlighting
+  local status_ok, illuminate = pcall(require, "illuminate")
+  if not status_ok then
+    return
+  end
+  illuminate.on_attach(client)
+end
+```
+
+### Formatting Control
+
+Disable formatting for servers where null-ls should handle it:
+
+- **tsserver**: Uses Prettier via null-ls
+- **sumneko_lua/lua_ls**: Uses Stylua via null-ls
+
+### Illuminate Integration
+
+Automatically highlights matching symbols under the cursor.
+
+## Customization
+
+### Adding Custom Keymaps
+
+Edit the `lsp_keymaps` function in `lua/user/lsp/handlers.lua:54`:
+
+```lua
+local function lsp_keymaps(bufnr)
+  local opts = { noremap = true, silent = true }
+  local keymap = vim.api.nvim_buf_set_keymap
+  
+  -- Add your custom keymaps
+  keymap(bufnr, "n", "<leader>lw", 
+    "<cmd>lua vim.lsp.buf.workspace_symbol()<CR>", opts)
+end
+```
+
+### Changing Diagnostic Display
+
+Modify the config table in `M.setup()`:
+
+```lua
+local config = {
+  virtual_text = true,  -- Enable inline diagnostics
+  signs = { active = signs },
+  -- ... other options
+}
+```
+
+### Custom Diagnostic Signs
+
+Change the icons in the signs table:
+
+```lua
+local signs = {
+  { name = "DiagnosticSignError", text = "✗" },
+  { name = "DiagnosticSignWarn", text = "⚠" },
+  { name = "DiagnosticSignHint", text = "➤" },
+  { name = "DiagnosticSignInfo", text = "ℹ" },
+}
+```
+
+## Usage in Mason
+
+The handlers are used when setting up each LSP server in `lua/user/lsp/mason.lua:39`:
+
+```lua
+opts = {
+  on_attach = require("user.lsp.handlers").on_attach,
+  capabilities = require("user.lsp.handlers").capabilities,
+}
+
+lspconfig[server].setup(opts)
+```
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Mason Setup" icon="box" href="/lsp/mason">
+    Install and manage LSP servers
+  </Card>
+  
+  <Card title="Null-ls" icon="circle-check" href="/lsp/null-ls">
+    Configure formatters and linters
+  </Card>
+</CardGroup>

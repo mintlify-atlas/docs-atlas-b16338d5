@@ -1,0 +1,348 @@
+---
+title: Troubleshooting
+description: Common issues and solutions for Neovim from Scratch
+---
+
+## Running Checkhealth
+
+The first step in troubleshooting any Neovim issue is to run the built-in health check:
+
+```vim
+:checkhealth
+```
+
+This command will diagnose common problems with your Neovim installation and plugins.
+
+## System Requirements
+
+### Neovim Version
+
+This configuration requires **Neovim v0.8.0 or higher**.
+
+Check your version:
+```bash
+nvim -v
+```
+
+If you need to upgrade, see the [Installation guide](/installation) for instructions.
+
+### Nerd Fonts
+
+This config assumes **Nerd Fonts v3.0.0 or higher**. Older versions will cause missing or incorrect glyphs.
+
+**Solution:** Update your [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts) to the latest version.
+
+## Common Issues
+
+### Copy/Paste Not Working
+
+If `:checkhealth` reports clipboard issues, you need to install a clipboard provider.
+
+**macOS:**
+```bash
+# pbcopy should be built-in
+pbcopy --version
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt install xsel
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S xsel
+```
+
+**Wayland Users:**
+
+Install [wl-clipboard](https://github.com/bugaevc/wl-clipboard):
+```bash
+# Arch
+sudo pacman -S wl-clipboard
+
+# Ubuntu/Debian
+sudo apt install wl-clipboard
+```
+
+### Python Support Missing
+
+Many plugins require Python support.
+
+**Solution:**
+```bash
+pip install pynvim
+```
+
+Verify installation:
+```vim
+:checkhealth provider
+```
+
+### Node.js Support Missing
+
+Some plugins and LSP servers require Node.js.
+
+**Install Node.js:**
+
+Using [fnm](https://github.com/Schniz/fnm) (recommended):
+```bash
+# Install fnm
+curl -fsSL https://fnm.vercel.app/install | bash
+
+# Install Node.js
+fnm install --lts
+```
+
+**Install Neovim Node package:**
+```bash
+npm i -g neovim
+```
+
+### Plugins Not Installing
+
+**Symptoms:**
+- Error messages on startup
+- Missing functionality
+- Empty plugin directories
+
+**Solutions:**
+
+1. **Reinstall Packer:**
+   ```bash
+   rm -rf ~/.local/share/nvim/site/pack/packer
+   nvim
+   ```
+   Packer will auto-install on first launch.
+
+2. **Manually sync plugins:**
+   ```vim
+   :PackerSync
+   ```
+
+3. **Check for errors:**
+   ```vim
+   :PackerStatus
+   ```
+
+### LSP Not Working
+
+This configuration uses [Mason](https://github.com/williamboman/mason.nvim) to manage LSP servers.
+
+**Install language servers:**
+```vim
+:Mason
+```
+
+Navigate the UI and install servers for your languages (e.g., `lua_ls`, `pyright`, `tsserver`).
+
+**Check LSP status:**
+```vim
+:LspInfo
+```
+
+**Common LSP issues:**
+
+- **No LSP attached:** Ensure you've installed the server via `:Mason`
+- **Server crashes:** Check `:LspLog` for error messages
+- **Wrong filetype detection:** Run `:set filetype?` to verify
+
+### Treesitter Errors
+
+**Symptoms:**
+- `nvim-treesitter` errors on startup
+- Syntax highlighting not working
+- "no parser for X language" messages
+
+**Solutions:**
+
+1. **Update parsers:**
+   ```vim
+   :TSUpdate
+   ```
+
+2. **Install specific parser:**
+   ```vim
+   :TSInstall python
+   :TSInstall lua
+   ```
+
+3. **Check parser status:**
+   ```vim
+   :TSInstallInfo
+   ```
+
+### Plugin Deprecation Warnings
+
+Common deprecation warnings and fixes:
+
+**nvim-cmp window.documentation warning:**
+```lua
+-- Old (deprecated)
+window = {
+  documentation = "native",
+}
+
+-- New (correct)
+window = {
+  documentation = cmp.config.window.bordered(),
+}
+```
+
+**cmp-nvim-lsp capabilities warning:**
+```lua
+-- Old (deprecated)
+local capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities())
+
+-- New (correct)
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+```
+
+### Configuration Not Loading
+
+**Check init.lua location:**
+```bash
+ls -la ~/.config/nvim/init.lua
+```
+
+**Expected path:** `~/.config/nvim/init.lua`
+
+**Backup existing config:**
+```bash
+mv ~/.config/nvim ~/.config/nvim.bak
+mv ~/.local/share/nvim ~/.local/share/nvim.bak
+```
+
+### Performance Issues
+
+**Slow startup:**
+
+1. **Profile startup time:**
+   ```bash
+   nvim --startuptime startup.log
+   cat startup.log
+   ```
+
+2. **Enable impatient.nvim:**
+   
+   This config includes `impatient.nvim` which caches Lua modules. Ensure it's loaded in your config.
+
+3. **Disable unused plugins:**
+   
+   Comment out plugins you don't use in `lua/user/plugins.lua`.
+
+**Laggy editing:**
+
+- Disable Treesitter for large files
+- Reduce `updatetime` in `lua/user/options.lua`
+- Check for infinite loops in autocommands
+
+## Getting Help
+
+### Check Existing Issues
+
+Before reporting a bug, search for similar issues:
+- [Neovim from Scratch Issues](https://github.com/LunarVim/Neovim-from-scratch/issues)
+- Plugin-specific repositories
+
+### Community Support
+
+General support is available on the [Matrix channels](https://matrix.to/#/#neovim-atmachine:matrix.org).
+
+### Debugging Tips
+
+1. **Start with minimal config:**
+   ```bash
+   nvim --clean
+   ```
+
+2. **Enable verbose logging:**
+   ```bash
+   nvim -V9log.txt
+   ```
+
+3. **Check Lua errors:**
+   ```vim
+   :messages
+   ```
+
+4. **Verify plugin installation:**
+   ```vim
+   :PackerStatus
+   ```
+
+5. **Test in isolation:**
+   
+   Temporarily disable other plugins to isolate the issue.
+
+## Plugin-Specific Issues
+
+### Telescope
+
+**Fuzzy finder not working:**
+- Ensure `plenary.nvim` is installed
+- Install external dependencies (ripgrep, fd)
+
+```bash
+# Ubuntu/Debian
+sudo apt install ripgrep fd-find
+
+# macOS
+brew install ripgrep fd
+
+# Arch Linux
+sudo pacman -S ripgrep fd
+```
+
+### nvim-tree
+
+**File explorer not opening:**
+- Check for keybinding conflicts
+- Ensure `nvim-web-devicons` is installed
+- Verify Nerd Fonts are properly configured
+
+### Which-key
+
+**Keybindings not showing:**
+- Allow a delay before the which-key popup appears (default 300ms)
+- Check `lua/user/whichkey.lua` for configuration
+
+### Gitsigns
+
+**Git decorations missing:**
+- Ensure you're in a git repository: `git status`
+- Check if `.git` directory exists
+- Update to Nerd Fonts v3.0+ for correct icons
+
+## Upgrading Neovim
+
+If you built Neovim from source:
+
+```bash
+cd /path/to/neovim/source
+git pull
+git checkout release-0.9
+make distclean && make CMAKE_BUILD_TYPE=Release
+sudo make install
+nvim -v
+```
+
+## Clean Reinstall
+
+If all else fails, perform a clean reinstall:
+
+```bash
+# 1. Backup current config
+mv ~/.config/nvim ~/.config/nvim.bak
+mv ~/.local/share/nvim ~/.local/share/nvim.bak
+
+# 2. Clone fresh config
+git clone https://github.com/LunarVim/Neovim-from-scratch.git ~/.config/nvim
+
+# 3. Launch Neovim (plugins will auto-install)
+nvim
+```
+
+<Note>
+After a clean install, wait for all plugins to install before closing Neovim. You may need to restart Neovim once or twice for all plugins to initialize properly.
+</Note>

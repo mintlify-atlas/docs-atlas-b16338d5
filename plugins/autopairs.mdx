@@ -1,0 +1,291 @@
+---
+title: Autopairs
+description: Automatic bracket and quote pairing
+---
+
+nvim-autopairs automatically inserts matching brackets, quotes, and other paired characters, with intelligent context awareness.
+
+## Configuration
+
+Autopairs is configured in `lua/user/autopairs.lua` with Treesitter and completion integration.
+
+### Basic Setup
+
+```lua
+setup {
+  check_ts = true,  -- Use Treesitter for context awareness
+  disable_filetype = { "TelescopePrompt", "spectre_panel" },
+}
+```
+
+## Features
+
+### Automatic Pairing
+
+Automatically inserts closing characters:
+
+| You Type | Result | Cursor Position |
+|----------|--------|----------------|
+| `(` | `()` | Between parentheses |
+| `[` | `[]` | Between brackets |
+| `{` | `{}` | Between braces |
+| `"` | `""` | Between quotes |
+| `'` | `''` | Between quotes |
+
+### Smart Deletion
+
+When you delete an opening character, the closing one is removed too:
+
+```lua
+-- Before: (|)  where | is cursor
+-- Press backspace
+-- After:  |
+```
+
+### Context Awareness
+
+Treesitter integration prevents auto-pairing in inappropriate contexts:
+
+```lua
+ts_config = {
+  lua = { "string", "source" },        -- Don't pair inside strings
+  javascript = { "string", "template_string" },
+  java = false,                         -- Disable for Java
+}
+```
+
+### Fast Wrap
+
+Quickly wrap words with brackets or quotes using `<M-e>` (Alt+e):
+
+```lua
+fast_wrap = {
+  map = "<M-e>",
+  chars = { "{", "[", "(", '"', "'" },
+  pattern = [=[[%'%"%)%>%]%)%}%,]]=],
+  end_key = "$",
+  keys = "qwertyuiopzxcvbnmasdfghjkl",
+}
+```
+
+## Usage Examples
+
+### Basic Auto-pairing
+
+```lua
+-- Type: function(
+-- Result: function(|)
+--                 ^
+--              cursor here
+
+-- Type: {
+-- Result: {|}
+--          ^
+--       cursor here
+```
+
+### Fast Wrap Usage
+
+1. Place cursor on word: `hello`
+2. Press `<M-e>` (Alt+e)
+3. Type the character to wrap with: `(`
+4. Press the hint key that appears
+5. Result: `(hello)`
+
+Example:
+```
+Before: hello world
+        ^
+        cursor here
+
+Press: <M-e>(
+Result: (hello) world
+```
+
+### Moving Past Closing Characters
+
+Just type the closing character to move past it:
+
+```lua
+-- Cursor position: function(arg|)
+-- Type: )
+-- Result: function(arg)|  -- cursor moves past
+```
+
+### Breaking Pairs
+
+Press Enter between pairs to format blocks:
+
+```javascript
+// Before: {|}
+// Press: Enter
+// Result:
+{
+  |
+}
+```
+
+## Language-Specific Behavior
+
+### Lua
+
+No auto-pairing inside strings and source blocks:
+
+```lua
+local str = "hello (world"  -- No auto-pair after (
+```
+
+### JavaScript
+
+Handles template strings correctly:
+
+```javascript
+const str = `hello ${|}`;  -- Smart pairing in template literals
+```
+
+## Integration
+
+### Completion Integration
+
+Autopairs integrates with nvim-cmp for automatic pairing after completions:
+
+```lua
+cmp.event:on(
+  "confirm_done",
+  cmp_autopairs.on_confirm_done()
+)
+```
+
+When you confirm a function completion, parentheses are automatically added:
+
+```lua
+-- Select completion: print
+-- Result: print(|)
+--              ^
+--           cursor here
+```
+
+### Treesitter Integration
+
+Uses Treesitter to understand context:
+
+- Don't auto-pair in strings (unless the language allows it)
+- Don't auto-pair in comments
+- Smart behavior in different node types
+
+## Keybindings
+
+| Key | Action | Mode |
+|-----|--------|------|
+| `<M-e>` | Fast wrap | Insert |
+| Any opening char | Insert pair | Insert |
+| Any closing char | Move past | Insert |
+| `<BS>` | Delete pair | Insert |
+| `<CR>` | Break pair | Insert |
+
+## Configuration Options
+
+### Disable for Specific Filetypes
+
+```lua
+disable_filetype = { 
+  "TelescopePrompt",  -- Disabled in Telescope
+  "spectre_panel",    -- Disabled in Spectre
+}
+```
+
+### Fast Wrap Settings
+
+```lua
+fast_wrap = {
+  map = "<M-e>",              -- Trigger key
+  chars = { "{", "[", "(", '"', "'" },  -- Wrap characters
+  pattern = [=[[%'%"%)%>%]%)%}%,]]=],   -- Word boundary pattern
+  offset = 0,                  -- Offset from pattern match
+  end_key = "$",              -- Jump to end key
+  keys = "qwertyuiopzxcvbnmasdfghjkl",  -- Hint keys
+  check_comma = true,          -- Check for comma
+  highlight = "PmenuSel",      -- Highlight group
+  highlight_grey = "LineNr",   -- Grey highlight
+}
+```
+
+## Tips and Tricks
+
+### Surround Existing Text
+
+Use fast wrap to quickly surround words:
+
+1. Cursor on word
+2. `<M-e>`
+3. Type wrap character
+4. Press hint key
+
+### Skip Auto-pairing
+
+Type the closing character to move past it:
+
+```lua
+-- Position: function(arg|)
+-- Type: )
+-- Moves past: function(arg)|
+```
+
+### Delete Both Pairs
+
+Press backspace to delete both opening and closing:
+
+```lua
+-- Before: (|)
+-- Press: <BS>
+-- After: |
+```
+
+### Break and Format
+
+Press Enter between pairs for proper formatting:
+
+```lua
+-- Before: {|}
+-- Press: <CR>
+-- Result:
+{
+  |
+}
+```
+
+## Common Pairs
+
+| Opening | Closing | Common Use |
+|---------|---------|------------|
+| `(` | `)` | Function calls, grouping |
+| `[` | `]` | Arrays, indexing |
+| `{` | `}` | Blocks, objects |
+| `"` | `"` | Strings |
+| `'` | `'` | Strings, characters |
+| `` ` `` | `` ` `` | Template literals (JS) |
+
+<Tip>
+  Use `<M-e>` (Alt+e) to quickly wrap words or selections with brackets or quotes.
+</Tip>
+
+<Note>
+  Auto-pairing is context-aware thanks to Treesitter integration. It won't pair in inappropriate locations like inside strings or comments.
+</Note>
+
+## Troubleshooting
+
+### Unwanted Pairing
+
+If auto-pairing happens where you don't want it:
+
+1. Check Treesitter configuration
+2. Add the filetype to `disable_filetype`
+3. Adjust `ts_config` for specific languages
+
+### Fast Wrap Not Working
+
+Ensure:
+- `<M-e>` (Alt+e) is not bound elsewhere
+- Your terminal supports Alt key combinations
+- Try remapping to a different key if needed

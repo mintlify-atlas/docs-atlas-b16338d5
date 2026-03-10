@@ -1,0 +1,225 @@
+---
+title: Gitsigns
+description: Git integration and change indicators in the sign column
+---
+
+Gitsigns shows git diff information in the sign column and provides commands for managing hunks directly from Neovim.
+
+## Configuration
+
+Gitsigns is configured in `lua/user/gitsigns.lua`.
+
+### Sign Column Indicators
+
+Git changes are displayed in the sign column with these symbols:
+
+```lua
+signs = {
+  add          = { text = ' ' },
+  change       = { text = ' ' },
+  delete       = { text = ' ' },
+  topdelete    = { text = '󱅁 ' },
+  changedelete = { text = '󰍷 ' },
+}
+```
+
+### Features
+
+```lua
+signcolumn = true,        -- Show signs in sign column
+numhl = false,            -- Highlight line numbers
+linehl = false,           -- Highlight lines
+word_diff = false,        -- Show word diff
+current_line_blame = false,  -- Show blame info (toggle with command)
+```
+
+## Keybindings
+
+All git commands are under the `<leader>g` prefix.
+
+### Navigation
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<leader>gj` | Next hunk | Jump to next change |
+| `<leader>gk` | Prev hunk | Jump to previous change |
+
+### Viewing Changes
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<leader>gp` | Preview hunk | Show diff in floating window |
+| `<leader>gl` | Blame line | Show git blame for current line |
+| `<leader>gd` | Diff | Show diff against HEAD |
+
+### Staging & Resetting
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<leader>gs` | Stage hunk | Stage the current hunk |
+| `<leader>gu` | Undo stage | Undo last stage operation |
+| `<leader>gr` | Reset hunk | Discard changes in hunk |
+| `<leader>gR` | Reset buffer | Discard all changes in file |
+
+### Git Tools
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<leader>gg` | Lazygit | Open Lazygit terminal |
+| `<leader>go` | Git status | Browse changed files |
+| `<leader>gb` | Branches | Checkout git branch |
+| `<leader>gc` | Commits | Browse and checkout commits |
+
+## Commands
+
+### Toggle Features
+
+```vim
+:Gitsigns toggle_signs          " Toggle sign column
+:Gitsigns toggle_numhl          " Toggle number highlighting
+:Gitsigns toggle_linehl         " Toggle line highlighting
+:Gitsigns toggle_word_diff      " Toggle word diff
+:Gitsigns toggle_current_line_blame  " Toggle blame info
+```
+
+### Hunk Operations
+
+```vim
+:Gitsigns stage_hunk            " Stage current hunk
+:Gitsigns reset_hunk            " Reset current hunk
+:Gitsigns undo_stage_hunk       " Undo staging
+:Gitsigns preview_hunk          " Preview hunk diff
+```
+
+### Buffer Operations
+
+```vim
+:Gitsigns stage_buffer          " Stage all hunks in buffer
+:Gitsigns reset_buffer          " Reset all hunks in buffer
+```
+
+### Blame
+
+```vim
+:Gitsigns blame_line            " Show blame for current line
+:Gitsigns toggle_current_line_blame  " Toggle inline blame
+```
+
+## Usage Examples
+
+### Reviewing Changes
+
+1. Navigate between changes:
+   ```
+   <leader>gj  " Next change
+   <leader>gk  " Previous change
+   ```
+
+2. Preview the change:
+   ```
+   <leader>gp  " Shows diff in floating window
+   ```
+
+3. Stage or reset:
+   ```
+   <leader>gs  " Stage this hunk
+   <leader>gr  " Discard this hunk
+   ```
+
+### Working with Hunks
+
+A "hunk" is a contiguous block of changes. Gitsigns lets you stage or reset individual hunks:
+
+```vim
+" Stage specific hunks
+<leader>gs
+
+" Undo if you staged wrong
+<leader>gu
+
+" Reset unwanted changes
+<leader>gr
+```
+
+### Viewing Git Blame
+
+See who changed a line and when:
+
+```vim
+" Show blame for current line
+<leader>gl
+
+" Toggle inline blame (shows at end of every line)
+:Gitsigns toggle_current_line_blame
+```
+
+### Comparing Changes
+
+```vim
+" Show diff in split window
+<leader>gd
+
+" This runs: :Gitsigns diffthis HEAD
+```
+
+## Configuration Options
+
+### Update Frequency
+
+```lua
+watch_gitdir = {
+  interval = 1000,        -- Check for changes every second
+  follow_files = true,    -- Follow file moves
+}
+```
+
+### Preview Window
+
+```lua
+preview_config = {
+  border = "single",
+  style = "minimal",
+  relative = "cursor",
+}
+```
+
+### Performance
+
+```lua
+max_file_length = 40000,  -- Disable for files longer than 40k lines
+update_debounce = 100,    -- Debounce updates (ms)
+```
+
+## Integration with Other Tools
+
+### Telescope
+
+Gitsigns integrates with Telescope for browsing:
+
+- `<leader>go` - Browse changed files
+- `<leader>gb` - Browse branches
+- `<leader>gc` - Browse commits
+
+### Lazygit
+
+Quickly open Lazygit terminal UI:
+
+```vim
+<leader>gg
+```
+
+<Tip>
+  Use `<leader>gp` to preview hunks before staging them. This helps avoid staging unwanted changes.
+</Tip>
+
+<Note>
+  Line blame information includes the commit hash, author, and relative time of the change.
+</Note>
+
+## Tips
+
+- Navigate hunks with `<leader>gj` and `<leader>gk`
+- Preview before staging with `<leader>gp`
+- Use `<leader>gg` for complex git operations via Lazygit
+- Enable inline blame for detailed change history
+- Stage hunks individually for cleaner commits

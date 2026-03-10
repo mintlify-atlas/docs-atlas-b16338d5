@@ -1,0 +1,404 @@
+---
+title: ToggleTerm
+description: Integrated terminal emulator with multiple terminal support
+---
+
+ToggleTerm provides a floating terminal interface and supports multiple terminal instances with custom configurations.
+
+## Configuration
+
+ToggleTerm is configured in `lua/user/toggleterm.lua`.
+
+### Basic Settings
+
+```lua
+setup({
+  size = 20,                    -- Terminal height/width
+  open_mapping = [[<c-\>]],     -- Quick toggle keybinding
+  hide_numbers = true,           -- Hide line numbers in terminal
+  shade_terminals = true,        -- Shade terminal background
+  shading_factor = 2,            -- Darkness of shading
+  start_in_insert = true,        -- Start in insert mode
+  insert_mappings = true,        -- Apply keybindings in insert mode
+  persist_size = true,           -- Remember terminal size
+  direction = "float",           -- Default: floating window
+  close_on_exit = true,          -- Close when process exits
+  shell = vim.o.shell,           -- Use system shell
+})
+```
+
+### Float Window Configuration
+
+```lua
+float_opts = {
+  border = "curved",           -- Border style
+  winblend = 0,                 -- Transparency
+  highlights = {
+    border = "Normal",
+    background = "Normal",
+  },
+}
+```
+
+## Keybindings
+
+### Global Terminal Toggle
+
+| Key | Action |
+|-----|--------|
+| `<C-\>` | Toggle floating terminal |
+
+### Leader Key Mappings
+
+All terminal commands are under `<leader>t`:
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<leader>tf` | Float terminal | Open floating terminal |
+| `<leader>th` | Horizontal terminal | Open horizontal split (10 lines) |
+| `<leader>tv` | Vertical terminal | Open vertical split (80 columns) |
+| `<leader>tn` | Node REPL | Open Node.js interactive shell |
+| `<leader>tp` | Python REPL | Open Python interactive shell |
+| `<leader>tu` | NCDU | Disk usage analyzer |
+| `<leader>tt` | Htop | System monitor |
+| `<leader>gg` | Lazygit | Git interface |
+
+### Terminal Mode Keybindings
+
+Inside the terminal, these keybindings are available:
+
+| Key | Action |
+|-----|--------|
+| `<Esc>` | Exit terminal mode (to normal mode) |
+| `jk` | Exit terminal mode (alternative) |
+| `<C-h>` | Focus left window |
+| `<C-j>` | Focus down window |
+| `<C-k>` | Focus up window |
+| `<C-l>` | Focus right window |
+
+## Terminal Directions
+
+### Floating Terminal
+
+Default floating window that overlays your editor:
+
+```vim
+<leader>tf
+" Or use the quick toggle:
+<C-\>
+```
+
+### Horizontal Split
+
+Terminal at bottom of screen (10 lines tall):
+
+```vim
+<leader>th
+```
+
+### Vertical Split
+
+Terminal on right side (80 columns wide):
+
+```vim
+<leader>tv
+```
+
+## Built-in Terminal Programs
+
+Several specialized terminals are preconfigured:
+
+### Node.js REPL
+
+Interactive Node.js shell:
+
+```vim
+<leader>tn
+```
+
+Usage:
+```javascript
+> console.log("Hello")
+> const x = 42
+> x * 2
+```
+
+### Python REPL
+
+Interactive Python shell:
+
+```vim
+<leader>tp
+```
+
+Usage:
+```python
+>>> print("Hello")
+>>> x = 42
+>>> x * 2
+```
+
+### Lazygit
+
+Full-featured Git interface:
+
+```vim
+<leader>gg
+```
+
+Features:
+- Visual commit history
+- Stage/unstage changes
+- Create commits
+- Push/pull
+- Branch management
+
+### NCDU (Disk Usage)
+
+Disk space analyzer:
+
+```vim
+<leader>tu
+```
+
+Navigate with arrow keys to find large files and directories.
+
+### Htop (System Monitor)
+
+System resource monitor:
+
+```vim
+<leader>tt
+```
+
+View CPU, memory, and process information.
+
+## Usage Examples
+
+### Quick Commands
+
+Run shell commands quickly:
+
+```vim
+" Toggle terminal
+<C-\>
+
+" Run command
+ls -la
+
+" Close terminal
+exit
+" Or: <C-\> to toggle it away
+```
+
+### Multiple Terminals
+
+ToggleTerm supports multiple terminal instances:
+
+```vim
+" Open terminal 1
+:1ToggleTerm
+
+" Open terminal 2
+:2ToggleTerm
+
+" Open terminal 3
+:3ToggleTerm
+```
+
+### Running Build Commands
+
+```vim
+" Open horizontal terminal for build output
+<leader>th
+
+" Run build
+npm run build
+
+" Keep terminal open to view output
+```
+
+### Interactive Development
+
+```vim
+" Open Python REPL
+<leader>tp
+
+" Test code snippets
+>>> def hello():
+...     print("Hello")
+>>> hello()
+```
+
+## Terminal Navigation
+
+### Switching Between Terminal and Editor
+
+```vim
+" In terminal:
+<Esc>          " Enter normal mode
+<C-h/j/k/l>    " Navigate to other windows
+
+" In editor:
+<C-\>          " Toggle terminal
+```
+
+### Multiple Terminal Windows
+
+```vim
+" Open multiple terminals side by side
+:1ToggleTerm direction=vertical size=40
+:2ToggleTerm direction=vertical size=40
+
+" Switch between them with window navigation
+<C-h> / <C-l>
+```
+
+## Commands
+
+### Toggle Terminal
+
+```vim
+:ToggleTerm              " Toggle default terminal
+:ToggleTerm direction=float
+:ToggleTerm direction=horizontal
+:ToggleTerm direction=vertical
+```
+
+### Specific Terminal Instance
+
+```vim
+:1ToggleTerm             " Toggle terminal 1
+:2ToggleTerm             " Toggle terminal 2
+```
+
+### Send Commands
+
+Send commands to terminal from Neovim:
+
+```vim
+:ToggleTermSendCurrentLine
+:ToggleTermSendVisualLines
+:ToggleTermSendVisualSelection
+```
+
+## Configuration Examples
+
+### Custom Terminal
+
+Create custom terminals in your config:
+
+```lua
+local Terminal = require("toggleterm.terminal").Terminal
+
+-- Create a custom terminal
+local my_term = Terminal:new({
+  cmd = "npm run dev",
+  hidden = true,
+  direction = "float",
+})
+
+function _MY_TERM_TOGGLE()
+  my_term:toggle()
+end
+```
+
+### Change Default Direction
+
+```lua
+setup({
+  direction = "horizontal",  -- Change to horizontal by default
+})
+```
+
+### Adjust Size
+
+```lua
+setup({
+  size = function(term)
+    if term.direction == "horizontal" then
+      return 15  -- Height for horizontal
+    elseif term.direction == "vertical" then
+      return vim.o.columns * 0.4  -- 40% width for vertical
+    end
+  end,
+})
+```
+
+## Tips and Tricks
+
+### Quick Terminal Access
+
+Use `<C-\>` for instant terminal access without leaving your hands from home row.
+
+### Persistent Terminals
+
+Terminals persist until you exit them:
+
+```vim
+<C-\>          " Open terminal
+cd ~/project   " Change directory
+<C-\>          " Hide terminal
+<C-\>          " Show again - still in ~/project
+```
+
+### Split Terminal Workflow
+
+```vim
+" Open vertical terminal for running app
+<leader>tv
+npm run dev
+
+" Switch to editor (<C-h>)
+" Make changes
+
+" Switch back to terminal (<C-l>)
+" View output
+```
+
+### Lazygit Workflow
+
+Use Lazygit for all Git operations:
+
+```vim
+<leader>gg     " Open Lazygit
+" Stage changes, commit, push all from UI
+<Esc>          " Exit when done
+```
+
+<Tip>
+  Use `<C-\>` as a quick scratchpad terminal. Press it to toggle the terminal on and off instantly.
+</Tip>
+
+<Note>
+  Terminal state persists when hidden. Your commands, history, and working directory remain intact.
+</Note>
+
+## Common Use Cases
+
+### Running Tests
+
+```vim
+<leader>th             " Open horizontal terminal
+npm test -- --watch    " Run tests in watch mode
+<C-h>                  " Switch to editor
+" Make changes, see test results update
+```
+
+### Development Server
+
+```vim
+<leader>tv             " Open vertical terminal
+npm run dev            " Start dev server
+<C-h>                  " Switch to editor
+" Server keeps running, see output on right
+```
+
+### Quick Scripts
+
+```vim
+<C-\>                  " Toggle terminal
+./scripts/deploy.sh    " Run script
+" View output
+<C-\>                  " Hide when done
+```

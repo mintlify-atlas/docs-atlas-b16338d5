@@ -1,0 +1,383 @@
+---
+title: "Autocommands"
+description: "Automatic commands triggered by events in Neovim"
+icon: "wand-magic-sparkles"
+---
+
+The `lua/user/autocommands.lua` file defines autocommands that automatically execute actions in response to specific events in Neovim.
+
+## Overview
+
+Autocommands (autocmds) allow you to automatically trigger commands when certain events occur, such as opening a file, changing buffers, or resizing windows.
+
+## Configuration Structure
+
+All autocommands are defined using Vim script wrapped in Lua:
+
+```lua lua/user/autocommands.lua
+vim.cmd [[
+  augroup group_name
+    autocmd!
+    autocmd Event pattern command
+  augroup end
+]]
+```
+
+<Info>
+  `autocmd!` clears all previous autocommands in the group, preventing duplicates when sourcing the file multiple times.
+</Info>
+
+## General Settings
+
+### Quick Close Windows
+
+```lua
+augroup _general_settings
+  autocmd!
+  autocmd FileType qf,help,man,lspinfo nnoremap <silent> <buffer> q :close<CR>
+```
+
+<Accordion title="Details">
+  **Event:** `FileType`
+  
+  **Pattern:** `qf,help,man,lspinfo`
+  
+  **Action:** Map `q` to close the window
+  
+  **Purpose:** Allows quick closing of special windows (quickfix list, help, man pages, LSP info) by pressing `q`.
+  
+  The `<buffer>` option ensures the mapping only applies to that specific buffer type.
+</Accordion>
+
+### Yank Highlighting
+
+```lua
+autocmd TextYankPost * silent!lua require('vim.highlight').on_yank({higroup = 'Visual', timeout = 200})
+```
+
+<CardGroup cols={1}>
+  <Card title="Visual Feedback" icon="eye">
+    **Event:** `TextYankPost`
+    
+    **Pattern:** `*` (all files)
+    
+    **Action:** Briefly highlight yanked (copied) text
+    
+    **Purpose:** Provides visual feedback when you yank text, making it clear what was copied.
+    
+    - Uses the `Visual` highlight group
+    - Highlight lasts 200 milliseconds
+  </Card>
+</CardGroup>
+
+### Format Options
+
+```lua
+autocmd BufWinEnter * :set formatoptions-=cro
+```
+
+<Tip>
+  This prevents Neovim from automatically inserting comment leaders when you press Enter or `o`/`O` in normal mode.
+</Tip>
+
+**Event:** `BufWinEnter`
+
+**Pattern:** `*` (all files)
+
+**Action:** Remove `c`, `r`, and `o` from format options
+
+**What it does:**
+- `c`: Don't auto-wrap comments using textwidth
+- `r`: Don't insert comment leader after pressing Enter in insert mode
+- `o`: Don't insert comment leader after pressing `o` or `O` in normal mode
+
+### Quickfix List Settings
+
+```lua
+autocmd FileType qf set nobuflisted
+```
+
+Prevents the quickfix list from appearing in the buffer list, keeping your buffer navigation cleaner.
+
+## Git Settings
+
+```lua
+augroup _git
+  autocmd!
+  autocmd FileType gitcommit setlocal wrap
+  autocmd FileType gitcommit setlocal spell
+augroup end
+```
+
+<AccordionGroup>
+  <Accordion title="Word Wrapping">
+    **Event:** `FileType gitcommit`
+    
+    **Action:** `setlocal wrap`
+    
+    **Purpose:** Enables line wrapping in git commit messages, making it easier to write longer commit descriptions.
+    
+    The `local` in `setlocal` means this only affects git commit buffers.
+  </Accordion>
+
+  <Accordion title="Spell Checking">
+    **Event:** `FileType gitcommit`
+    
+    **Action:** `setlocal spell`
+    
+    **Purpose:** Enables spell checking for git commit messages to catch typos.
+    
+    Misspelled words will be underlined. Use `z=` on a misspelled word to see suggestions.
+  </Accordion>
+</AccordionGroup>
+
+## Markdown Settings
+
+```lua
+augroup _markdown
+  autocmd!
+  autocmd FileType markdown setlocal wrap
+  autocmd FileType markdown setlocal spell
+augroup end
+```
+
+<CardGroup cols={2}>
+  <Card title="Enable Wrapping" icon="text-width">
+    Makes long lines in Markdown files wrap to the next line for better readability.
+  </Card>
+  
+  <Card title="Enable Spell Check" icon="spell-check">
+    Automatically enables spell checking for Markdown documents.
+  </Card>
+</CardGroup>
+
+**File Type:** `markdown`
+
+**Settings:**
+- Line wrapping for long paragraphs
+- Spell checking for writing quality
+
+Same behavior as git commits, but for Markdown files (`.md`).
+
+## Window Resize
+
+```lua
+augroup _auto_resize
+  autocmd!
+  autocmd VimResized * tabdo wincmd =
+augroup end
+```
+
+<Warning>
+  This autocommand ensures all windows stay proportional when you resize your terminal.
+</Warning>
+
+**Event:** `VimResized`
+
+**Pattern:** `*` (all situations)
+
+**Action:** Equalize all window sizes
+
+**How it works:**
+- `tabdo`: Execute the following command in all tabs
+- `wincmd =`: Equalize the size of all windows
+
+**Purpose:** When you resize your terminal or GUI, all split windows automatically adjust to equal sizes.
+
+## Alpha Dashboard Settings
+
+```lua
+augroup _alpha
+  autocmd!
+  autocmd User AlphaReady set showtabline=0 | autocmd BufUnload <buffer> set showtabline=2
+augroup end
+```
+
+<Accordion title="Dashboard Appearance">
+  **Event:** `User AlphaReady`
+  
+  **Action:** Hide the tab line when Alpha dashboard is shown
+  
+  **Cleanup:** Restore tab line when leaving the dashboard
+  
+  **Purpose:** Provides a cleaner look for the startup dashboard by hiding the tab line, then restoring it when you open a file.
+  
+  - `showtabline=0`: Hide tab line
+  - `showtabline=2`: Always show tab line
+</Accordion>
+
+## Commented Autoformat
+
+```lua
+-- Autoformat
+-- augroup _lsp
+--   autocmd!
+--   autocmd BufWritePre * lua vim.lsp.buf.formatting()
+-- augroup end
+```
+
+<Info>
+  This autocommand is commented out by default. Uncomment it to enable automatic code formatting on save.
+</Info>
+
+**When enabled:**
+- **Event:** `BufWritePre` (before saving)
+- **Action:** Format the buffer using LSP
+- **Pattern:** `*` (all files)
+
+**To enable:**
+1. Remove the comment markers (`--`)
+2. Save and reload the configuration
+3. Code will auto-format whenever you save a file
+
+**Note:** Requires LSP to be properly configured for the file type.
+
+## Creating Custom Autocommands
+
+<Steps>
+  <Step title="Choose the event">
+    Determine what event should trigger your autocommand.
+    
+    Common events:
+    - `BufRead`, `BufNewFile`: When opening files
+    - `BufWritePre`, `BufWritePost`: Before/after saving
+    - `FileType`: When file type is detected
+    - `InsertEnter`, `InsertLeave`: Entering/leaving insert mode
+  </Step>
+
+  <Step title="Create an augroup">
+    Group related autocommands together:
+    
+    ```lua
+    vim.cmd [[
+      augroup _my_custom_group
+        autocmd!
+        -- your autocommands here
+      augroup end
+    ]]
+    ```
+  </Step>
+
+  <Step title="Add your autocommand">
+    Define the pattern and action:
+    
+    ```lua
+    autocmd FileType python setlocal tabstop=4 shiftwidth=4
+    ```
+  </Step>
+
+  <Step title="Test and reload">
+    Save the file and test your autocommand by triggering the event.
+  </Step>
+</Steps>
+
+## Example Custom Autocommands
+
+<CodeGroup>
+```lua Auto-save
+-- Save automatically when leaving insert mode
+augroup _auto_save
+  autocmd!
+  autocmd InsertLeave * silent! write
+augroup end
+```
+
+```lua Python-specific settings
+-- Configure Python files with 4-space indentation
+augroup _python
+  autocmd!
+  autocmd FileType python setlocal tabstop=4 shiftwidth=4 expandtab
+  autocmd FileType python setlocal colorcolumn=88
+augroup end
+```
+
+```lua Strip trailing whitespace
+-- Remove trailing whitespace on save
+augroup _trailing_whitespace
+  autocmd!
+  autocmd BufWritePre * %s/\s\+$//e
+augroup end
+```
+
+```lua JSON formatting
+-- Auto-format JSON files on save
+augroup _json
+  autocmd!
+  autocmd FileType json setlocal tabstop=2 shiftwidth=2
+  autocmd BufWritePre *.json %!jq .
+augroup end
+```
+</CodeGroup>
+
+## Common Autocommand Events
+
+| Event | Description |
+|-------|-------------|
+| `BufNewFile` | Starting to edit a file that doesn't exist |
+| `BufRead`, `BufReadPost` | After reading a file |
+| `BufWrite`, `BufWritePre` | Before/during writing a file |
+| `BufEnter` | After entering a buffer |
+| `BufLeave` | Before leaving a buffer |
+| `FileType` | When file type is set |
+| `InsertEnter` | Starting insert mode |
+| `InsertLeave` | Leaving insert mode |
+| `TextChanged` | After a change was made in normal mode |
+| `TextChangedI` | After a change was made in insert mode |
+| `VimResized` | After Vim window was resized |
+| `CursorHold` | Cursor hasn't moved for `updatetime` ms |
+
+## Lua-Style Autocommands
+
+<Tip>
+  You can also define autocommands using Neovim's Lua API instead of Vim script.
+</Tip>
+
+```lua
+local augroup = vim.api.nvim_create_augroup
+local autocmd = vim.api.nvim_create_autocmd
+
+-- Create augroup
+local general = augroup("_general_settings", { clear = true })
+
+-- Create autocommand
+autocmd("TextYankPost", {
+  group = general,
+  pattern = "*",
+  callback = function()
+    vim.highlight.on_yank({ higroup = "Visual", timeout = 200 })
+  end,
+})
+```
+
+This is the modern Lua approach and offers better integration with Lua functions.
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Augroups" icon="layer-group">
+    Always wrap autocommands in augroups with `autocmd!` to prevent duplicates.
+  </Card>
+  
+  <Card title="Be Specific" icon="crosshairs">
+    Use specific patterns instead of `*` when possible to avoid unnecessary triggers.
+  </Card>
+  
+  <Card title="Test Carefully" icon="flask">
+    Some autocommands can impact performance if they run too frequently.
+  </Card>
+  
+  <Card title="Use Silent" icon="volume-xmark">
+    Add `silent!` to suppress error messages for non-critical commands.
+  </Card>
+</CardGroup>
+
+## See Also
+
+<CardGroup cols={2}>
+  <Card title="Options" icon="sliders" href="/configuration/options">
+    Configure editor settings and behavior
+  </Card>
+  <Card title="Keymaps" icon="keyboard" href="/configuration/keymaps">
+    Set up custom key bindings
+  </Card>
+</CardGroup>

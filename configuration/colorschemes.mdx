@@ -1,0 +1,359 @@
+---
+title: "Colorschemes"
+description: "Configure and customize your Neovim color theme"
+icon: "palette"
+---
+
+The `lua/user/colorscheme.lua` file manages the active colorscheme for your Neovim configuration.
+
+## Overview
+
+This simple but essential file sets the default colorscheme and handles errors gracefully if the theme isn't available.
+
+## Default Configuration
+
+```lua lua/user/colorscheme.lua
+local colorscheme = "tokyonight"
+
+local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+if not status_ok then
+  return
+end
+```
+
+<Info>
+  The configuration uses a protected call (`pcall`) to prevent errors if the colorscheme isn't installed.
+</Info>
+
+## How It Works
+
+<Steps>
+  <Step title="Define colorscheme">
+    The `colorscheme` variable stores the name of the desired theme:
+    
+    ```lua
+    local colorscheme = "tokyonight"
+    ```
+  </Step>
+
+  <Step title="Protected call">
+    `pcall` (protected call) attempts to execute the colorscheme command:
+    
+    ```lua
+    local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+    ```
+    
+    This prevents Neovim from throwing an error if the colorscheme isn't installed.
+  </Step>
+
+  <Step title="Error handling">
+    If the colorscheme fails to load, the function returns silently:
+    
+    ```lua
+    if not status_ok then
+      return
+    end
+    ```
+    
+    Neovim will fall back to its default colorscheme.
+  </Step>
+</Steps>
+
+## Available Colorschemes
+
+The configuration comes with two colorschemes pre-installed:
+
+<CardGroup cols={2}>
+  <Card title="Tokyo Night" icon="moon">
+    **Repository:** `folke/tokyonight.nvim`
+    
+    A clean, dark colorscheme inspired by the Tokyo Night theme for VS Code.
+    
+    ```lua
+    local colorscheme = "tokyonight"
+    ```
+    
+    **Variants:**
+    - `tokyonight-night` (default)
+    - `tokyonight-storm`
+    - `tokyonight-day`
+    - `tokyonight-moon`
+  </Card>
+
+  <Card title="DarkPlus" icon="circle-half-stroke">
+    **Repository:** `lunarvim/darkplus.nvim`
+    
+    A port of VS Code's Dark+ theme.
+    
+    ```lua
+    local colorscheme = "darkplus"
+    ```
+    
+    Provides a familiar look for users coming from VS Code.
+  </Card>
+</CardGroup>
+
+## Changing Colorschemes
+
+### Temporary Change
+
+To try a different colorscheme without editing files:
+
+```vim
+:colorscheme darkplus
+```
+
+This change won't persist after restarting Neovim.
+
+### Permanent Change
+
+<Tabs>
+  <Tab title="Edit Configuration">
+    1. Open the colorscheme file:
+       ```vim
+       :e ~/.config/nvim/lua/user/colorscheme.lua
+       ```
+
+    2. Change the colorscheme variable:
+       ```lua
+       local colorscheme = "darkplus"  -- or any other installed theme
+       ```
+
+    3. Save and reload:
+       ```vim
+       :w
+       :luafile %
+       ```
+  </Tab>
+
+  <Tab title="Quick Command">
+    From the command line:
+    ```bash
+    # Edit the colorscheme file
+    nvim ~/.config/nvim/lua/user/colorscheme.lua
+    
+    # Change "tokyonight" to your preferred colorscheme
+    # Save and restart Neovim
+    ```
+  </Tab>
+</Tabs>
+
+## Tokyo Night Configuration
+
+<Tip>
+  Tokyo Night offers several customization options beyond just choosing a variant.
+</Tip>
+
+To customize Tokyo Night, add configuration before setting the colorscheme:
+
+```lua lua/user/colorscheme.lua
+-- Configure Tokyo Night before loading
+require("tokyonight").setup({
+  style = "night",           -- storm, moon, night, day
+  transparent = false,        -- Enable transparent background
+  terminal_colors = true,     -- Configure terminal colors
+  styles = {
+    comments = { italic = true },
+    keywords = { italic = true },
+    functions = {},
+    variables = {},
+  },
+  sidebars = { "qf", "help" }, -- Darker sidebar for specific windows
+  day_brightness = 0.3,       -- Brightness for day variant
+  hide_inactive_statusline = false,
+  dim_inactive = false,       -- Dim inactive windows
+  lualine_bold = false,       -- Bold section headers in lualine
+})
+
+local colorscheme = "tokyonight"
+
+local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
+if not status_ok then
+  return
+end
+```
+
+## Installing Additional Colorschemes
+
+<Steps>
+  <Step title="Add to plugins.lua">
+    Open `lua/user/plugins.lua` and add your colorscheme plugin:
+    
+    ```lua
+    use { "catppuccin/nvim", as = "catppuccin" }
+    ```
+  </Step>
+
+  <Step title="Install the plugin">
+    Save the file and run:
+    ```vim
+    :PackerSync
+    ```
+  </Step>
+
+  <Step title="Update colorscheme.lua">
+    Change the colorscheme variable to use the new theme:
+    ```lua
+    local colorscheme = "catppuccin"
+    ```
+  </Step>
+
+  <Step title="Reload configuration">
+    Restart Neovim or source the colorscheme file:
+    ```vim
+    :luafile ~/.config/nvim/lua/user/colorscheme.lua
+    ```
+  </Step>
+</Steps>
+
+## Popular Colorscheme Options
+
+<AccordionGroup>
+  <Accordion title="Gruvbox">
+    ```lua
+    -- In plugins.lua
+    use { "ellisonleao/gruvbox.nvim" }
+    
+    -- In colorscheme.lua
+    local colorscheme = "gruvbox"
+    ```
+    
+    Retro groove colorscheme with warm, earthy tones.
+  </Accordion>
+
+  <Accordion title="Catppuccin">
+    ```lua
+    -- In plugins.lua
+    use { "catppuccin/nvim", as = "catppuccin" }
+    
+    -- In colorscheme.lua
+    local colorscheme = "catppuccin"
+    ```
+    
+    Soothing pastel theme with multiple flavors (latte, frappe, macchiato, mocha).
+  </Accordion>
+
+  <Accordion title="Nord">
+    ```lua
+    -- In plugins.lua
+    use { "shaunsingh/nord.nvim" }
+    
+    -- In colorscheme.lua
+    local colorscheme = "nord"
+    ```
+    
+    Arctic, north-bluish color palette.
+  </Accordion>
+
+  <Accordion title="Nightfox">
+    ```lua
+    -- In plugins.lua
+    use { "EdenEast/nightfox.nvim" }
+    
+    -- In colorscheme.lua
+    local colorscheme = "nightfox"
+    ```
+    
+    Multiple fox-themed variants (nightfox, dayfox, dawnfox, duskfox, nordfox, terafox).
+  </Accordion>
+
+  <Accordion title="Kanagawa">
+    ```lua
+    -- In plugins.lua
+    use { "rebelot/kanagawa.nvim" }
+    
+    -- In colorscheme.lua
+    local colorscheme = "kanagawa"
+    ```
+    
+    Dark colorscheme inspired by the colors of Kanagawa's famous painting.
+  </Accordion>
+</AccordionGroup>
+
+## Listing Available Colorschemes
+
+To see all installed colorschemes:
+
+```vim
+:colorscheme <Tab>
+```
+
+Press `<Tab>` to cycle through available options.
+
+Or use this command to get a list:
+
+```vim
+:lua print(vim.inspect(vim.fn.getcompletion('', 'color')))
+```
+
+## Troubleshooting
+
+<Warning>
+  If your colorscheme isn't loading, check these common issues.
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="Colorscheme not found">
+    **Problem:** Error message about colorscheme not being found.
+    
+    **Solution:**
+    1. Ensure the plugin is installed in `plugins.lua`
+    2. Run `:PackerSync` to install/update plugins
+    3. Restart Neovim
+    4. Verify the exact colorscheme name (some require `-` or have variants)
+  </Accordion>
+
+  <Accordion title="Colors look wrong">
+    **Problem:** Colors don't match screenshots or documentation.
+    
+    **Solution:**
+    1. Ensure your terminal supports true colors
+    2. Enable true color support in `options.lua`:
+       ```lua
+       termguicolors = true
+       ```
+    3. Check your terminal emulator's color settings
+  </Accordion>
+
+  <Accordion title="Colorscheme loads but looks broken">
+    **Problem:** Theme loads but elements are invisible or poorly colored.
+    
+    **Solution:**
+    1. Some themes require specific configuration
+    2. Check the theme's GitHub README for setup instructions
+    3. Clear Neovim's cache:
+       ```bash
+       rm -rf ~/.cache/nvim
+       ```
+  </Accordion>
+</AccordionGroup>
+
+## Advanced: Creating Colorscheme Switcher
+
+Create a function to easily switch between colorschemes:
+
+```lua
+local colorschemes = { "tokyonight", "darkplus", "gruvbox" }
+local current_index = 1
+
+function _G.cycle_colorscheme()
+  current_index = current_index % #colorschemes + 1
+  local scheme = colorschemes[current_index]
+  vim.cmd("colorscheme " .. scheme)
+  print("Colorscheme: " .. scheme)
+end
+
+-- Add keymap in keymaps.lua
+keymap("n", "<leader>cs", ":lua cycle_colorscheme()<CR>", opts)
+```
+
+## See Also
+
+<CardGroup cols={2}>
+  <Card title="Plugins" icon="puzzle-piece" href="/configuration/plugins">
+    Manage and install colorscheme plugins
+  </Card>
+  <Card title="Options" icon="sliders" href="/configuration/options">
+    Configure terminal colors and UI settings
+  </Card>
+</CardGroup>

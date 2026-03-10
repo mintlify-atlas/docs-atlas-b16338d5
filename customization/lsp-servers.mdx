@@ -1,0 +1,460 @@
+---
+title: LSP Servers
+description: Learn how to add and configure Language Server Protocol (LSP) servers in Neovim
+---
+
+Neovim from Scratch uses [Mason](https://github.com/williamboman/mason.nvim) to manage LSP servers. This guide will show you how to add new language servers and configure them for your development needs.
+
+## Understanding the LSP Setup
+
+The LSP configuration is managed in several files:
+
+- `lua/user/lsp/mason.lua` - Server installation and setup
+- `lua/user/lsp/handlers.lua` - Common LSP handlers and keybindings
+- `lua/user/lsp/settings/` - Server-specific configurations
+
+## Current LSP Servers
+
+The base configuration includes:
+
+```lua
+local servers = {
+  "lua_ls",      -- Lua language server
+  "pyright",     -- Python language server
+  "jsonls",      -- JSON language server
+}
+```
+
+## Adding a New LSP Server
+
+### Step 1: Add Server to Configuration
+
+Edit `lua/user/lsp/mason.lua` and add your server to the `servers` table:
+
+```lua
+local servers = {
+  "lua_ls",
+  "pyright",
+  "jsonls",
+  "tsserver",    -- TypeScript/JavaScript
+  "rust_analyzer", -- Rust
+  "gopls",       -- Go
+}
+```
+
+### Step 2: Restart Neovim
+
+Mason will automatically install the new server:
+
+```bash
+nvim
+```
+
+You'll see Mason installing the server in the background.
+
+### Step 3: Verify Installation
+
+Check Mason status:
+
+```vim
+:Mason
+```
+
+Or use the which-key shortcut:
+
+```
+<leader>lI
+```
+
+Verify LSP is attached to your buffer:
+
+```vim
+:LspInfo
+```
+
+## Available LSP Servers
+
+Here are commonly used language servers:
+
+### Web Development
+
+```lua
+"tsserver",     -- TypeScript/JavaScript
+"html",         -- HTML
+"cssls",        -- CSS
+"tailwindcss",  -- Tailwind CSS
+"emmet_ls",     -- Emmet
+"eslint",       -- ESLint
+```
+
+### Systems Programming
+
+```lua
+"clangd",       -- C/C++
+"rust_analyzer", -- Rust
+"gopls",        -- Go
+```
+
+### Scripting Languages
+
+```lua
+"pyright",      -- Python
+"lua_ls",       -- Lua
+"bashls",       -- Bash
+```
+
+### Configuration Files
+
+```lua
+"jsonls",       -- JSON
+"yamlls",       -- YAML
+"taplo",        -- TOML
+```
+
+### Other Languages
+
+```lua
+"jdtls",        -- Java
+"omnisharp",    -- C#
+"solargraph",   -- Ruby
+```
+
+For a complete list, run:
+
+```vim
+:Mason
+```
+
+Then press `2` to view available LSP servers.
+
+## Server-Specific Configuration
+
+### Creating a Server Configuration
+
+Some servers need custom settings. Create a configuration file in `lua/user/lsp/settings/`.
+
+**Example: Lua Language Server (`lua_ls.lua`)**
+
+```lua
+return {
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { "vim" },  -- Recognize 'vim' as global
+      },
+      workspace = {
+        library = {
+          [vim.fn.expand("$VIMRUNTIME/lua")] = true,
+          [vim.fn.stdpath("config") .. "/lua"] = true,
+        },
+      },
+    },
+  },
+}
+```
+
+**Example: Python Language Server (`pyright.lua`)**
+
+Create `lua/user/lsp/settings/pyright.lua`:
+
+```lua
+return {
+  settings = {
+    python = {
+      analysis = {
+        typeCheckingMode = "basic",
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = "workspace",
+      },
+    },
+  },
+}
+```
+
+**Example: TypeScript Language Server (`tsserver.lua`)**
+
+Create `lua/user/lsp/settings/tsserver.lua`:
+
+```lua
+return {
+  settings = {
+    typescript = {
+      inlayHints = {
+        includeInlayParameterNameHints = "all",
+        includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+        includeInlayFunctionParameterTypeHints = true,
+        includeInlayVariableTypeHints = true,
+        includeInlayPropertyDeclarationTypeHints = true,
+        includeInlayFunctionLikeReturnTypeHints = true,
+        includeInlayEnumMemberValueHints = true,
+      },
+    },
+    javascript = {
+      inlayHints = {
+        includeInlayParameterNameHints = "all",
+        includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+        includeInlayFunctionParameterTypeHints = true,
+        includeInlayVariableTypeHints = true,
+        includeInlayPropertyDeclarationTypeHints = true,
+        includeInlayFunctionLikeReturnTypeHints = true,
+        includeInlayEnumMemberValueHints = true,
+      },
+    },
+  },
+}
+```
+
+### How Server Configuration Works
+
+The mason.lua file automatically loads server-specific settings:
+
+```lua
+for _, server in pairs(servers) do
+  opts = {
+    on_attach = require("user.lsp.handlers").on_attach,
+    capabilities = require("user.lsp.handlers").capabilities,
+  }
+  
+  -- Load server-specific settings if they exist
+  local require_ok, conf_opts = pcall(require, "user.lsp.settings." .. server)
+  if require_ok then
+    opts = vim.tbl_deep_extend("force", conf_opts, opts)
+  end
+  
+  lspconfig[server].setup(opts)
+end
+```
+
+## LSP Keybindings
+
+These keybindings are automatically available when LSP is attached:
+
+### Leader-Based (via Which-Key)
+
+- `<leader>la` - Code action
+- `<leader>ld` - Document diagnostics
+- `<leader>lf` - Format code
+- `<leader>li` - LSP info
+- `<leader>lj` - Next diagnostic
+- `<leader>lk` - Previous diagnostic
+- `<leader>lr` - Rename symbol
+- `<leader>ls` - Document symbols
+- `<leader>lw` - Workspace diagnostics
+
+### Direct Keybindings
+
+These are defined in `lua/user/lsp/handlers.lua`:
+
+- `gD` - Go to declaration
+- `gd` - Go to definition
+- `K` - Hover documentation
+- `gi` - Go to implementation
+- `gr` - Show references
+- `gl` - Show line diagnostics
+
+## Practical Examples
+
+### Example 1: Adding Rust Support
+
+**Step 1:** Add rust-analyzer to mason.lua:
+
+```lua
+local servers = {
+  "lua_ls",
+  "pyright",
+  "jsonls",
+  "rust_analyzer",  -- Add this
+}
+```
+
+**Step 2:** Create `lua/user/lsp/settings/rust_analyzer.lua`:
+
+```lua
+return {
+  settings = {
+    ["rust-analyzer"] = {
+      cargo = {
+        allFeatures = true,
+      },
+      checkOnSave = {
+        command = "clippy",
+      },
+    },
+  },
+}
+```
+
+**Step 3:** Restart Neovim and open a Rust file:
+
+```bash
+nvim main.rs
+```
+
+### Example 2: Adding Go Support
+
+**Step 1:** Add gopls to mason.lua:
+
+```lua
+local servers = {
+  "lua_ls",
+  "pyright",
+  "jsonls",
+  "gopls",  -- Add this
+}
+```
+
+**Step 2:** Create `lua/user/lsp/settings/gopls.lua`:
+
+```lua
+return {
+  settings = {
+    gopls = {
+      analyses = {
+        unusedparams = true,
+        shadow = true,
+      },
+      staticcheck = true,
+      gofumpt = true,
+    },
+  },
+}
+```
+
+**Step 3:** Restart and open a Go file:
+
+```bash
+nvim main.go
+```
+
+### Example 3: Full Web Development Stack
+
+```lua
+local servers = {
+  "lua_ls",
+  "pyright",
+  "jsonls",
+  "tsserver",      -- TypeScript/JavaScript
+  "html",          -- HTML
+  "cssls",         -- CSS
+  "tailwindcss",   -- Tailwind
+  "eslint",        -- Linting
+}
+```
+
+## Mason Configuration
+
+Customize Mason's behavior in `lua/user/lsp/mason.lua`:
+
+```lua
+local settings = {
+  ui = {
+    border = "rounded",  -- Change border style
+    icons = {
+      package_installed = "✓",
+      package_pending = "➜",
+      package_uninstalled = "✗",
+    },
+  },
+  log_level = vim.log.levels.INFO,
+  max_concurrent_installers = 4,  -- Parallel installations
+}
+```
+
+## Troubleshooting
+
+### Server Not Installing
+
+1. Check server name is correct
+2. Manually install via Mason:
+   ```vim
+   :Mason
+   ``` 
+   Then press `i` on the server
+
+3. Check Mason logs:
+   ```vim
+   :MasonLog
+   ```
+
+### LSP Not Attaching
+
+1. Verify server is installed:
+   ```vim
+   :Mason
+   ```
+
+2. Check LSP status:
+   ```vim
+   :LspInfo
+   ```
+
+3. Check filetype is detected:
+   ```vim
+   :set filetype?
+   ```
+
+4. Ensure filetype matches server:
+   - `tsserver` needs filetype `typescript` or `javascript`
+   - `pyright` needs filetype `python`
+   - `lua_ls` needs filetype `lua`
+
+### Server Errors
+
+1. Check server configuration file syntax
+2. View LSP logs:
+   ```vim
+   :lua vim.cmd('e '..vim.lsp.get_log_path())
+   ```
+
+3. Restart LSP server:
+   ```vim
+   :LspRestart
+   ```
+
+### Configuration Not Loading
+
+1. Verify file name matches server name exactly
+2. Check file is in `lua/user/lsp/settings/`
+3. Ensure file returns a table
+4. Restart Neovim after creating config
+
+## Advanced Configuration
+
+### Custom On-Attach Function
+
+Modify `lua/user/lsp/handlers.lua` to customize behavior for all servers:
+
+```lua
+M.on_attach = function(client, bufnr)
+  -- Disable formatting for specific servers
+  if client.name == "tsserver" then
+    client.server_capabilities.documentFormattingProvider = false
+  end
+  
+  -- Your custom on_attach logic
+end
+```
+
+### Server-Specific On-Attach
+
+In your server settings file:
+
+```lua
+return {
+  on_attach = function(client, bufnr)
+    -- Server-specific behavior
+    print("Custom on_attach for this server")
+  end,
+  settings = {
+    -- Server settings
+  },
+}
+```
+
+## Next Steps
+
+- [Add More Plugins](/customization/adding-plugins)
+- [Customize Keymaps](/customization/custom-keymaps)
+- [Change Colorschemes](/customization/colorschemes)
+- Learn about [Null-ls](https://github.com/jose-elias-alvarez/null-ls.nvim) for formatters and linters

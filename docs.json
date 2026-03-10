@@ -1,122 +1,99 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Neovim from Scratch",
+  "theme": "aspen",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#b36c6e",
+    "light": "#0a0707",
+    "dark": "#935557"
   },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "tabs": [
-      {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Getting started",
-            "pages": [
-              "index",
-              "quickstart",
-              "development"
-            ]
-          },
-          {
-            "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
-          }
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
+  "favicon": "https://media.brand.dev/b148c6fa-c663-4143-8653-02554affa37e.png",
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "https://media.brand.dev/b148c6fa-c663-4143-8653-02554affa37e.png",
+    "dark": "https://media.brand.dev/891995db-57e8-43c0-815d-a4292c7ad0a4.png"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
     "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "type": "github",
+      "href": "https://github.com/LunarVim/Neovim-from-scratch"
     }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/LunarVim/Neovim-from-scratch"
     }
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "prerequisites"
+        ]
+      },
+      {
+        "group": "Core Configuration",
+        "pages": [
+          "configuration/options",
+          "configuration/keymaps",
+          "configuration/plugins",
+          "configuration/colorschemes",
+          "configuration/autocommands"
+        ]
+      },
+      {
+        "group": "LSP & Completion",
+        "pages": [
+          "lsp/overview",
+          "lsp/mason",
+          "lsp/handlers",
+          "lsp/null-ls",
+          "completion/nvim-cmp",
+          "completion/snippets"
+        ]
+      },
+      {
+        "group": "UI Plugins",
+        "pages": [
+          "plugins/alpha",
+          "plugins/bufferline",
+          "plugins/lualine",
+          "plugins/nvim-tree",
+          "plugins/indent-blankline",
+          "plugins/which-key"
+        ]
+      },
+      {
+        "group": "Editor Features",
+        "pages": [
+          "plugins/telescope",
+          "plugins/treesitter",
+          "plugins/gitsigns",
+          "plugins/comment",
+          "plugins/autopairs",
+          "plugins/toggleterm",
+          "plugins/project"
+        ]
+      },
+      {
+        "group": "Customization",
+        "pages": [
+          "customization/adding-plugins",
+          "customization/custom-keymaps",
+          "customization/lsp-servers",
+          "customization/colorschemes"
+        ]
+      },
+      {
+        "group": "Resources",
+        "pages": [
+          "troubleshooting",
+          "faq",
+          "contributing"
+        ]
+      }
+    ]
   }
 }

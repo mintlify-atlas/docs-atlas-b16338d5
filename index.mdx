@@ -1,97 +1,116 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Neovim from Scratch"
+description: "A Neovim configuration designed from scratch to be understandable and educational"
 ---
 
-## Setting up
+<div className="bg-[#05060a] border-transparent rounded-none shadow-none p-12 text-center">
+  <h1 className="text-[40px] font-bold text-white mb-4" style={{ fontFamily: 'Inter' }}>
+    Build Your Perfect Neovim Config
+  </h1>
+  <p className="text-[14px] text-white mb-8" style={{ fontFamily: 'Inter' }}>
+    A complete, modular Neovim configuration designed to be understandable from the ground up. Learn by exploring a clean, well-documented setup with LSP, completion, treesitter, and more.
+  </p>
+  <div className="flex gap-4 justify-center">
+    <a 
+      href="/installation" 
+      className="inline-block px-6 py-3 rounded-[50%] text-white font-bold"
+      style={{ backgroundColor: '#d94a3d', fontFamily: 'Inter' }}
+    >
+      Get Started
+    </a>
+    <a 
+      href="https://github.com/LunarVim/Neovim-from-scratch" 
+      className="inline-block px-6 py-3 rounded-none border border-[#1e40af] text-[#1e40af] font-bold"
+      style={{ backgroundColor: 'transparent', fontFamily: 'Inter' }}
+    >
+      View on GitHub
+    </a>
+  </div>
+</div>
 
-Get your documentation site up and running in minutes.
+## Key Features
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+Neovim from Scratch provides a complete, production-ready configuration with all the modern tools you need.
 
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="LSP Integration" icon="code" href="/lsp/overview">
+    Pre-configured Language Server Protocol support with Mason for easy installation
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Smart Completion" icon="wand-magic-sparkles" href="/completion/nvim-cmp">
+    Advanced autocompletion with nvim-cmp and snippet support
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Syntax Highlighting" icon="paintbrush" href="/plugins/treesitter">
+    Modern syntax highlighting and code analysis with Treesitter
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Fuzzy Finding" icon="magnifying-glass" href="/plugins/telescope">
+    Lightning-fast file and text search with Telescope
   </Card>
-</Columns>
+  <Card title="Git Integration" icon="code-branch" href="/plugins/gitsigns">
+    Built-in Git signs, blame, and diff tools with Gitsigns
+  </Card>
+  <Card title="Beautiful UI" icon="palette" href="/plugins/lualine">
+    Polished interface with statusline, bufferline, and file explorer
+  </Card>
+</CardGroup>
 
-## Create beautiful pages
+## Quick Start
 
-Everything you need to create world-class documentation.
+Get up and running with Neovim from Scratch in just a few steps.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<Steps>
+  <Step title="Check Prerequisites">
+    Ensure you have Neovim v0.8.0 or higher installed. Learn more about [prerequisites](/prerequisites).
+  </Step>
+  <Step title="Install the Config">
+    Clone the repository into your Neovim config directory and let the plugins install automatically.
+    
+    ```bash
+    git clone https://github.com/LunarVim/Neovim-from-scratch.git ~/.config/nvim
+    ```
+  </Step>
+  <Step title="Start Customizing">
+    Explore the modular configuration structure and customize it to your needs. Check out our [customization guides](/customization/adding-plugins).
+  </Step>
+</Steps>
 
-## Need inspiration?
+## Modular Architecture
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+The configuration is organized into logical modules for easy understanding and modification.
+
+<CardGroup cols={3}>
+  <Card title="Core Config" icon="gear" href="/configuration/options">
+    Options, keymaps, and autocommands
+  </Card>
+  <Card title="Plugin Management" icon="puzzle-piece" href="/configuration/plugins">
+    Organized plugin installation with Packer
+  </Card>
+  <Card title="LSP & Completion" icon="server" href="/lsp/overview">
+    Language server and completion setup
+  </Card>
+  <Card title="UI Plugins" icon="window" href="/plugins/alpha">
+    Dashboard, statusline, and bufferline
+  </Card>
+  <Card title="Editor Features" icon="pencil" href="/plugins/telescope">
+    Search, git, comments, and more
+  </Card>
+  <Card title="Customization" icon="wrench" href="/customization/adding-plugins">
+    Make it your own
+  </Card>
+</CardGroup>
+
+## Community & Support
+
+<CardGroup cols={2}>
+  <Card title="Matrix Chat" icon="comments" href="https://matrix.to/#/#neovim-atmachine:matrix.org">
+    Join our community chat for support and discussion
+  </Card>
+  <Card title="Contributing" icon="code-pull-request" href="/contributing">
+    Learn how to contribute improvements and fixes
+  </Card>
+  <Card title="LunarVim" icon="rocket" href="https://www.lunarvim.org/">
+    Check out LunarVim for a fully-featured IDE experience
+  </Card>
+  <Card title="nvim-basic-ide" icon="laptop-code" href="https://github.com/LunarVim/nvim-basic-ide">
+    Explore the actively maintained successor project
+  </Card>
+</CardGroup>

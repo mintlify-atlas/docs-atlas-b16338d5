@@ -1,0 +1,291 @@
+---
+title: "Keymaps"
+description: "Custom key bindings and shortcuts for efficient navigation"
+icon: "keyboard"
+---
+
+The `lua/user/keymaps.lua` file defines custom key bindings that enhance navigation, editing, and window management in Neovim.
+
+## Overview
+
+Keymaps are configured using `vim.keymap.set` with options for different modes (normal, insert, visual, etc.). The space key is set as the leader key for custom commands.
+
+## Leader Key Configuration
+
+```lua lua/user/keymaps.lua
+keymap("", "<Space>", "<Nop>", opts)
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+```
+
+The **Space** key is mapped as the leader key, which is used as a prefix for many custom commands throughout your configuration.
+
+## Keymap Options
+
+```lua
+local opts = { noremap = true, silent = true }
+local term_opts = { silent = true }
+```
+
+- **noremap**: Prevents recursive mapping
+- **silent**: Suppresses command output in the command line
+
+## Mode Reference
+
+<Info>
+  Keymaps are mode-specific. Understanding Neovim modes is essential for effective key binding configuration.
+</Info>
+
+| Mode | Code | Description |
+|------|------|-------------|
+| Normal | `n` | Default mode for navigation and commands |
+| Insert | `i` | Text insertion mode |
+| Visual | `v` | Visual selection mode |
+| Visual Block | `x` | Visual block selection mode |
+| Terminal | `t` | Terminal emulator mode |
+| Command | `c` | Command-line mode |
+
+## Normal Mode Keymaps
+
+### Window Navigation
+
+<Tip>
+  These keybindings allow you to navigate between split windows without using `Ctrl-w` first.
+</Tip>
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `Ctrl-h` | `<C-w>h` | Move to left window |
+| `Ctrl-j` | `<C-w>j` | Move to window below |
+| `Ctrl-k` | `<C-w>k` | Move to window above |
+| `Ctrl-l` | `<C-w>l` | Move to right window |
+
+```lua
+keymap("n", "<C-h>", "<C-w>h", opts)
+keymap("n", "<C-j>", "<C-w>j", opts)
+keymap("n", "<C-k>", "<C-w>k", opts)
+keymap("n", "<C-l>", "<C-w>l", opts)
+```
+
+### Window Resizing
+
+<AccordionGroup>
+  <Accordion title="Arrow Key Resizing">
+    Use Ctrl + Arrow keys to resize split windows:
+
+    | Keybinding | Action | Description |
+    |------------|--------|-------------|
+    | `Ctrl-Up` | `:resize -2` | Decrease window height |
+    | `Ctrl-Down` | `:resize +2` | Increase window height |
+    | `Ctrl-Left` | `:vertical resize -2` | Decrease window width |
+    | `Ctrl-Right` | `:vertical resize +2` | Increase window width |
+
+    ```lua
+    keymap("n", "<C-Up>", ":resize -2<CR>", opts)
+    keymap("n", "<C-Down>", ":resize +2<CR>", opts)
+    keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
+    keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Buffer Navigation
+
+<CardGroup cols={2}>
+  <Card title="Next Buffer" icon="arrow-right">
+    **Shift-l**: Switch to next buffer
+    ```lua
+    keymap("n", "<S-l>", ":bnext<CR>", opts)
+    ```
+  </Card>
+  
+  <Card title="Previous Buffer" icon="arrow-left">
+    **Shift-h**: Switch to previous buffer
+    ```lua
+    keymap("n", "<S-h>", ":bprevious<CR>", opts)
+    ```
+  </Card>
+</CardGroup>
+
+### Moving Lines
+
+Quickly move lines up or down while maintaining indentation:
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `Alt-j` | `:m .+1<CR>==` | Move current line down |
+| `Alt-k` | `:m .-2<CR>==` | Move current line up |
+
+```lua
+keymap("n", "<A-j>", ":m .+1<CR>==", opts)
+keymap("n", "<A-k>", ":m .-2<CR>==", opts)
+```
+
+## Insert Mode Keymaps
+
+### Quick Exit
+
+<Warning>
+  These mappings allow you to exit insert mode quickly by typing two keys in succession.
+</Warning>
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `jk` | `<ESC>` | Exit insert mode |
+| `kj` | `<ESC>` | Exit insert mode |
+
+```lua
+keymap("i", "jk", "<ESC>", opts)
+keymap("i", "kj", "<ESC>", opts)
+```
+
+These are popular alternatives to pressing the Escape key, keeping your fingers on the home row.
+
+## Visual Mode Keymaps
+
+### Indentation
+
+<Tip>
+  These keymaps allow you to indent/outdent multiple times without losing your visual selection.
+</Tip>
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `<` | `<gv^` | Decrease indentation and reselect |
+| `>` | `>gv^` | Increase indentation and reselect |
+
+```lua
+keymap("v", "<", "<gv^", opts)
+keymap("v", ">", ">gv^", opts)
+```
+
+### Moving Text
+
+Move selected text up or down:
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `Alt-j` | `:m '>+1<CR>gv=gv` | Move selection down |
+| `Alt-k` | `:m '<-2<CR>gv=gv` | Move selection up |
+
+```lua
+keymap("v", "<A-j>", ":m '>+1<CR>gv=gv", opts)
+keymap("v", "<A-k>", ":m '<-2<CR>gv=gv", opts)
+```
+
+### Paste Behavior
+
+```lua
+keymap("v", "p", '"_dP', opts)
+```
+
+When pasting over selected text, this keeps the original yanked text in the register instead of replacing it with the deleted text.
+
+## Visual Block Mode Keymaps
+
+Visual block mode allows you to select rectangular blocks of text:
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `J` | `:m '>+1<CR>gv=gv` | Move block down |
+| `K` | `:m '<-2<CR>gv=gv` | Move block up |
+| `Alt-j` | `:m '>+1<CR>gv=gv` | Move block down |
+| `Alt-k` | `:m '<-2<CR>gv=gv` | Move block up |
+
+```lua
+keymap("x", "J", ":m '>+1<CR>gv=gv", opts)
+keymap("x", "K", ":m '<-2<CR>gv=gv", opts)
+keymap("x", "<A-j>", ":m '>+1<CR>gv=gv", opts)
+keymap("x", "<A-k>", ":m '<-2<CR>gv=gv", opts)
+```
+
+## Terminal Mode Keymaps
+
+<Info>
+  Terminal navigation keymaps are currently commented out but available if needed.
+</Info>
+
+```lua
+-- Terminal navigation (commented out by default)
+-- keymap("t", "<C-h>", "<C-\\><C-N><C-w>h", term_opts)
+-- keymap("t", "<C-j>", "<C-\\><C-N><C-w>j", term_opts)
+-- keymap("t", "<C-k>", "<C-\\><C-N><C-w>k", term_opts)
+-- keymap("t", "<C-l>", "<C-\\><C-N><C-w>l", term_opts)
+```
+
+Uncomment these lines to enable window navigation from terminal mode.
+
+## Adding Custom Keymaps
+
+<Steps>
+  <Step title="Choose a keybinding">
+    Select a key combination that doesn't conflict with existing mappings.
+  </Step>
+  
+  <Step title="Determine the mode">
+    Decide which mode(s) the keybinding should work in (normal, insert, visual, etc.).
+  </Step>
+  
+  <Step title="Add the mapping">
+    Use the keymap function to create your binding:
+    
+    ```lua
+    keymap("n", "<leader>w", ":w<CR>", opts)  -- Save file with leader+w
+    ```
+  </Step>
+  
+  <Step title="Reload configuration">
+    Save the file and restart Neovim or source the file with `:luafile %`.
+  </Step>
+</Steps>
+
+## Keymap Examples
+
+<CodeGroup>
+```lua Quick Save
+keymap("n", "<leader>w", ":w<CR>", opts)
+```
+
+```lua Quick Quit
+keymap("n", "<leader>q", ":q<CR>", opts)
+```
+
+```lua Clear Search Highlighting
+keymap("n", "<leader>h", ":nohlsearch<CR>", opts)
+```
+
+```lua Select All
+keymap("n", "<C-a>", "ggVG", opts)
+```
+</CodeGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Leader Key" icon="star">
+    Prefix custom commands with `<leader>` to avoid conflicts with built-in mappings.
+  </Card>
+  
+  <Card title="Be Consistent" icon="arrows-rotate">
+    Group related commands with similar prefixes (e.g., `<leader>f` for file operations).
+  </Card>
+  
+  <Card title="Document Mappings" icon="book">
+    Add comments explaining what complex keybindings do.
+  </Card>
+  
+  <Card title="Test Carefully" icon="flask">
+    Ensure new mappings don't override important default behavior.
+  </Card>
+</CardGroup>
+
+## See Also
+
+<CardGroup cols={2}>
+  <Card title="Options" icon="sliders" href="/configuration/options">
+    Configure editor behavior and settings
+  </Card>
+  <Card title="Plugins" icon="puzzle-piece" href="/configuration/plugins">
+    Plugin-specific keybindings
+  </Card>
+</CardGroup>

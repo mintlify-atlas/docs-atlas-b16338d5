@@ -1,0 +1,301 @@
+---
+title: "Nvim-Tree"
+description: "Configure nvim-tree.lua file explorer for efficient project navigation"
+---
+
+## Overview
+
+Nvim-Tree is a file explorer written in Lua that provides a fast and feature-rich sidebar for navigating your project files.
+
+**Plugin**: [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua)
+
+**Config File**: `lua/user/nvim-tree.lua`
+
+## Features
+
+- Tree-style file navigation
+- Git status integration
+- LSP diagnostics integration
+- Automatic CWD updating
+- Custom icons and symbols
+- Vim-style keybindings
+
+## Quick Start
+
+### Toggle File Explorer
+
+Open/close NvimTree:
+
+```vim
+:NvimTreeToggle
+```
+
+Or use the which-key binding:
+
+```
+<leader>e
+```
+
+## Configuration
+
+### Automatic File Tracking
+
+NvimTree automatically focuses on the current file and updates the working directory:
+
+```lua
+update_focused_file = {
+  enable = true,
+  update_cwd = true,
+}
+```
+
+### Window Settings
+
+The file tree opens on the left side with a fixed width:
+
+```lua
+view = {
+  width = 30,
+  side = "left",
+}
+```
+
+## Icons and Glyphs
+
+### File Icons
+
+```lua
+icons = {
+  glyphs = {
+    default = "",
+    symlink = "",
+  },
+}
+```
+
+### Folder Icons
+
+```lua
+folder = {
+  arrow_open = "",
+  arrow_closed = "",
+  default = "",
+  open = "",
+  empty = "",
+  empty_open = "",
+  symlink = "",
+  symlink_open = "",
+}
+```
+
+### Git Status Icons
+
+| Icon | Status |
+|------|--------|
+| `` | Unstaged changes |
+| `S` | Staged changes |
+| `` | Unmerged files |
+| `➜` | Renamed files |
+| `U` | Untracked files |
+| `` | Deleted files |
+| `◌` | Ignored files |
+
+```lua
+git = {
+  unstaged = "",
+  staged = "S",
+  unmerged = "",
+  renamed = "➜",
+  untracked = "U",
+  deleted = "",
+  ignored = "◌",
+}
+```
+
+## LSP Diagnostics
+
+NvimTree displays LSP diagnostics directly in the file tree:
+
+```lua
+diagnostics = {
+  enable = true,
+  show_on_dirs = true,
+  icons = {
+    hint = "",
+    info = "",
+    warning = "",
+    error = "",
+  },
+}
+```
+
+Files and directories with errors or warnings show the appropriate icon.
+
+## Key Mappings
+
+Custom keybindings for navigating the tree:
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `l`, `<CR>`, `o` | edit | Open file or expand directory |
+| `h` | close_node | Close directory |
+| `v` | vsplit | Open file in vertical split |
+
+```lua
+mappings = {
+  list = {
+    { key = { "l", "<CR>", "o" }, cb = tree_cb "edit" },
+    { key = "h", cb = tree_cb "close_node" },
+    { key = "v", cb = tree_cb "vsplit" },
+  },
+}
+```
+
+### Default Mappings
+
+In addition to custom mappings, NvimTree includes many default keybindings:
+
+- `a` - Create new file/directory
+- `d` - Delete file/directory
+- `r` - Rename file/directory
+- `x` - Cut file/directory
+- `c` - Copy file/directory
+- `p` - Paste file/directory
+- `R` - Refresh tree
+- `H` - Toggle hidden files
+- `I` - Toggle gitignore files
+- `W` - Collapse all
+- `S` - Open system file manager
+
+Run `:help nvim-tree-mappings` for a complete list.
+
+## Root Folder Display
+
+The root folder displays only the directory name (not full path):
+
+```lua
+renderer = {
+  root_folder_modifier = ":t",
+}
+```
+
+## Integration with Bufferline
+
+The [Bufferline](/plugins/bufferline) configuration includes an offset for NvimTree:
+
+```lua
+-- In bufferline.lua
+offsets = { 
+  { 
+    filetype = "NvimTree", 
+    text = "", 
+    padding = 1 
+  } 
+}
+```
+
+This prevents buffer tabs from overlapping the file tree.
+
+## Customization
+
+### Change Tree Width
+
+```lua
+view = {
+  width = 40, -- Wider tree
+  side = "left",
+}
+```
+
+### Open on Right Side
+
+```lua
+view = {
+  width = 30,
+  side = "right",
+}
+```
+
+### Disable Auto CWD Update
+
+```lua
+update_focused_file = {
+  enable = true,
+  update_cwd = false, -- Don't change working directory
+}
+```
+
+### Add More Key Mappings
+
+```lua
+mappings = {
+  list = {
+    { key = { "l", "<CR>", "o" }, cb = tree_cb "edit" },
+    { key = "h", cb = tree_cb "close_node" },
+    { key = "v", cb = tree_cb "vsplit" },
+    { key = "s", cb = tree_cb "split" },
+    { key = "t", cb = tree_cb "tabnew" },
+  },
+}
+```
+
+### Disable Diagnostics
+
+```lua
+diagnostics = {
+  enable = false,
+}
+```
+
+### Custom Diagnostic Icons
+
+```lua
+diagnostics = {
+  enable = true,
+  show_on_dirs = true,
+  icons = {
+    hint = "H",
+    info = "I",
+    warning = "W",
+    error = "E",
+  },
+}
+```
+
+## Common Actions
+
+### Opening Files
+
+- `<CR>` or `l` - Open in current window
+- `v` - Open in vertical split
+- Add `s` mapping for horizontal split
+- Add `t` mapping for new tab
+
+### Managing Files
+
+- `a` - Create new file (end with `/` for directory)
+- `d` - Delete file
+- `r` - Rename file
+- `x` - Cut file
+- `c` - Copy file
+- `p` - Paste file
+
+### Navigation
+
+- `h` - Close folder
+- `l` - Open folder
+- `P` - Jump to parent directory
+- `-` - Navigate up one directory
+
+### View Options
+
+- `H` - Toggle hidden files
+- `I` - Toggle gitignore files
+- `R` - Refresh tree
+- `W` - Collapse all folders
+
+## Related Configuration
+
+- [Which-Key](/plugins/which-key) - Provides `<leader>e` shortcut
+- [Bufferline](/plugins/bufferline) - Offset integration
+- [LSP](/lsp/overview) - Diagnostic information

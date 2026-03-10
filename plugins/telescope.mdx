@@ -1,0 +1,124 @@
+---
+title: Telescope
+description: Fuzzy finder and file navigation with Telescope
+---
+
+Telescope is a highly extendable fuzzy finder that provides an interactive interface for searching files, text, buffers, and more.
+
+## Configuration
+
+Telescope is configured in `lua/user/telescope.lua` with custom keymaps and UI settings.
+
+### UI Settings
+
+```lua
+defaults = {
+  prompt_prefix = " ",
+  selection_caret = " ",
+  path_display = { "smart" },
+}
+```
+
+## Keybindings
+
+### Leader Key Mappings
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `<leader>f` | Find files | Open file finder in dropdown mode |
+| `<leader>F` | Live grep | Search text across project |
+| `<leader>b` | Buffers | List open buffers |
+| `<leader>P` | Projects | Open projects picker |
+
+### Insert Mode Navigation
+
+| Key | Action |
+|-----|--------|
+| `<C-j>` / `<C-k>` | Move selection down/up |
+| `<C-n>` / `<C-p>` | Cycle through history |
+| `<Down>` / `<Up>` | Move selection |
+| `<C-u>` / `<C-d>` | Scroll preview |
+| `<PageUp>` / `<PageDown>` | Scroll results |
+
+### Selection Actions
+
+| Key | Action |
+|-----|--------|
+| `<CR>` | Open file in current window |
+| `<C-x>` | Open in horizontal split |
+| `<C-v>` | Open in vertical split |
+| `<C-t>` | Open in new tab |
+| `<Tab>` / `<S-Tab>` | Toggle selection and move |
+| `<C-q>` | Send all to quickfix list |
+| `<M-q>` | Send selected to quickfix |
+
+### Normal Mode (Inside Telescope)
+
+| Key | Action |
+|-----|--------|
+| `j` / `k` | Move selection |
+| `gg` / `G` | Jump to top/bottom |
+| `H` / `M` / `L` | Jump to top/middle/bottom |
+| `<esc>` | Close Telescope |
+| `?` | Show help |
+
+## Usage Examples
+
+### Find Files
+
+```vim
+:Telescope find_files
+" Or use the keybinding:
+<leader>f
+```
+
+### Search Text
+
+```vim
+:Telescope live_grep
+" Or use the keybinding:
+<leader>F
+```
+
+### Browse Buffers
+
+```vim
+:Telescope buffers
+" Or use the keybinding:
+<leader>b
+```
+
+### Search Help Tags
+
+```vim
+:Telescope help_tags
+" Or use the keybinding:
+<leader>sh
+```
+
+### Git Integration
+
+Telescope integrates with Git for browsing:
+
+- `<leader>so` - Git status (changed files)
+- `<leader>sb` - Git branches
+- `<leader>gc` - Git commits
+
+## LSP Integration
+
+Telescope provides LSP pickers:
+
+- `<leader>ls` - Document symbols
+- `<leader>lS` - Workspace symbols
+- `<leader>ld` - Document diagnostics
+- `<leader>lw` - Workspace diagnostics
+
+## Tips
+
+<Tip>
+  Use `<C-/>` (Control + slash) inside Telescope to show all available keybindings for the current picker.
+</Tip>
+
+<Note>
+  The smart path display automatically truncates long paths to fit the window while keeping important parts visible.
+</Note>

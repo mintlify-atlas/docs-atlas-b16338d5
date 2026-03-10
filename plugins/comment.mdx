@@ -1,0 +1,239 @@
+---
+title: Comment
+description: Smart commenting with context awareness
+---
+
+Comment.nvim provides intelligent code commenting that understands different languages and contexts, including embedded languages.
+
+## Configuration
+
+Comment is configured in `lua/user/comment.lua` with Treesitter integration for context-aware commenting.
+
+### Context-Aware Commenting
+
+The plugin integrates with `ts_context_commentstring` to use the correct comment syntax based on the cursor position:
+
+```lua
+pre_hook = function(ctx)
+  -- Uses treesitter to determine the correct comment syntax
+  -- Handles embedded languages (e.g., JS in HTML, Lua in Vim)
+end
+```
+
+## Default Keybindings
+
+Comment.nvim uses intuitive keybindings that follow Vim conventions.
+
+### Normal Mode
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `gcc` | Toggle line | Comment/uncomment current line |
+| `gbc` | Toggle block | Block comment current line |
+| `gc{motion}` | Line comment | Comment using motion (e.g., `gcap` for paragraph) |
+| `gb{motion}` | Block comment | Block comment using motion |
+
+### Visual Mode
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| `gc` | Toggle line | Comment/uncomment selection |
+| `gb` | Toggle block | Block comment selection |
+
+## Usage Examples
+
+### Commenting Single Lines
+
+```vim
+" Toggle comment on current line
+gcc
+
+" The line is now commented/uncommented
+```
+
+### Commenting with Motions
+
+Use Vim motions to comment multiple lines:
+
+```vim
+gc2j    " Comment current line and 2 lines down
+gc4k    " Comment current line and 4 lines up
+gcap    " Comment entire paragraph
+gcG     " Comment from cursor to end of file
+ggcG    " Comment entire file
+```
+
+### Block Comments
+
+For languages that support block comments:
+
+```vim
+gbc     " Toggle block comment on current line
+gb2j    " Block comment current line and 2 lines down
+```
+
+### Visual Mode Commenting
+
+1. Select lines in visual mode: `V`
+2. Comment the selection: `gc`
+
+```vim
+Vjjjgc  " Select 4 lines and comment them
+```
+
+### Comment Blocks of Code
+
+```vim
+" Comment a function
+gcif    " Comment inside function (requires treesitter text objects)
+
+" Comment inside curly braces
+gci{    " Comment inside {}
+
+" Comment around curly braces
+gca{    " Comment including the {}
+```
+
+## Language Support
+
+Comment.nvim automatically detects and uses the correct comment syntax for each language:
+
+| Language | Line Comment | Block Comment |
+|----------|--------------|---------------|
+| Lua | `--` | `--[[ ]]` |
+| Python | `#` | - |
+| JavaScript | `//` | `/* */` |
+| C/C++ | `//` | `/* */` |
+| HTML | - | `<!-- -->` |
+| CSS | - | `/* */` |
+| Bash | `#` | - |
+
+### Context-Aware Example
+
+In a Vue or React file with mixed HTML/JS:
+
+```vue
+<template>
+  <div>Hello</div>  <!-- Pressing gcc uses HTML comments -->
+</template>
+
+<script>
+const x = 1;  // Pressing gcc uses JavaScript comments
+</script>
+
+<style>
+.class { }  /* Pressing gcc uses CSS comments */
+</style>
+```
+
+## Tips and Tricks
+
+### Count-Based Commenting
+
+Use counts with comment commands:
+
+```vim
+5gcc    " Comment 5 lines starting from current line
+```
+
+### Commenting Ranges
+
+In command mode:
+
+```vim
+:10,20Commentary    " Comment lines 10-20
+:.,.+10Commentary   " Comment current line and next 10
+```
+
+### Dotting (Repeat)
+
+Comment actions can be repeated with the `.` command:
+
+```vim
+gcc     " Comment current line
+j.      " Move down and repeat (comment next line)
+j.      " Repeat again
+```
+
+### Uncomment Shortcut
+
+The same key toggles comments on/off:
+
+```vim
+gcc     " Comment line
+gcc     " Uncomment line
+```
+
+## Integration
+
+### Treesitter Integration
+
+Comment.nvim uses Treesitter to determine the correct comment type based on:
+
+- Current cursor position
+- Surrounding code context
+- Language at point (for multi-language files)
+
+This ensures you always get the right comment syntax, even in complex files.
+
+### Text Objects
+
+When used with Treesitter text objects, you can comment semantic code blocks:
+
+```vim
+gcif    " Comment inside function
+gcic    " Comment inside class
+gcaa    " Comment around argument
+```
+
+## Configuration Customization
+
+While the default configuration works well, you can customize comment strings if needed:
+
+```lua
+require('Comment').setup({
+  toggler = {
+    line = 'gcc',   -- Line-comment toggle
+    block = 'gbc',  -- Block-comment toggle
+  },
+  opleader = {
+    line = 'gc',    -- Line-comment operator
+    block = 'gb',   -- Block-comment operator
+  },
+})
+```
+
+<Tip>
+  Use `gcc` in normal mode to quickly toggle comments. It's one of the most frequently used commands in coding.
+</Tip>
+
+<Note>
+  The context-aware commenting means you don't need to remember different comment syntaxes for different languages or file sections.
+</Note>
+
+## Common Use Cases
+
+### Debugging
+
+Quickly comment out code blocks when debugging:
+
+```vim
+gcip    " Comment entire paragraph/block
+```
+
+### Documentation
+
+Comment explanatory notes:
+
+```vim
+gcc     " Add comment on current line
+A      " Then type your note
+```
+
+### Temporary Removal
+
+Comment code you might need later:
+
+```vim
+V5jgc   " Select and comment 5 lines
+```

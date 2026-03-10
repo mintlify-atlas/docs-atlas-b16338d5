@@ -1,0 +1,439 @@
+---
+title: Snippet Configuration
+description: Working with LuaSnip and code snippets in nvim-cmp
+---
+
+Snippets are code templates that can be expanded and filled in with tab stops, providing faster code writing and consistency.
+
+## Overview
+
+The configuration uses LuaSnip as the snippet engine, integrated with nvim-cmp for seamless completion.
+
+## LuaSnip Integration
+
+### Loading Snippets
+
+VSCode-style snippets are automatically loaded:
+
+```lua title="lua/user/cmp.lua:11"
+require("luasnip/loaders/from_vscode").lazy_load()
+```
+
+This loads snippets from:
+- Installed snippet plugins (e.g., `friendly-snippets`)
+- Custom snippet files in VSCode format
+
+### Snippet Expansion
+
+nvim-cmp is configured to use LuaSnip for expansion:
+
+```lua title="lua/user/cmp.lua:49"
+snippet = {
+  expand = function(args)
+    luasnip.lsp_expand(args.body)
+  end,
+}
+```
+
+## Navigation
+
+### Tab Navigation
+
+Tab key intelligently handles snippets:
+
+```lua title="lua/user/cmp.lua:68"
+["<Tab>"] = cmp.mapping(function(fallback)
+  if cmp.visible() then
+    cmp.select_next_item()           -- Navigate completion menu
+  elseif luasnip.expandable() then
+    luasnip.expand()                 -- Expand snippet
+  elseif luasnip.expand_or_jumpable() then
+    luasnip.expand_or_jump()         -- Jump to next field
+  elseif check_backspace() then
+    fallback()                       -- Insert tab
+  else
+    fallback()
+  end
+end, { "i", "s" })
+```
+
+**Behavior:**
+1. If completion menu is visible → select next item
+2. If on a snippet trigger → expand it
+3. If in a snippet → jump to next field
+4. If at line start/after whitespace → insert tab
+5. Otherwise → default behavior
+
+### Shift-Tab Navigation
+
+Navigate backwards through snippet fields:
+
+```lua title="lua/user/cmp.lua:84"
+["<S-Tab>"] = cmp.mapping(function(fallback)
+  if cmp.visible() then
+    cmp.select_prev_item()
+  elseif luasnip.jumpable(-1) then
+    luasnip.jump(-1)                 -- Jump to previous field
+  else
+    fallback()
+  end
+end, { "i", "s" })
+```
+
+## Snippet Format
+
+### VSCode Snippet Format
+
+Snippets follow VSCode's JSON format:
+
+```json
+{
+  "Function": {
+    "prefix": "fn",
+    "body": [
+      "function ${1:name}(${2:params}) {",
+      "  ${3:// body}",
+      "}"
+    ],
+    "description": "Function declaration"
+  }
+}
+```
+
+**Components:**
+- `prefix`: Trigger text to expand
+- `body`: Template with tab stops
+- `${1:name}`: Tab stop 1 with default text "name"
+- `$0`: Final cursor position
+
+## Installing Snippet Packs
+
+### Friendly Snippets
+
+A popular collection of snippets for many languages:
+
+```lua title="lua/user/plugins.lua"
+use {
+  "L3MON4D3/LuaSnip",
+  requires = {
+    "rafamadriz/friendly-snippets",  -- Snippet collection
+  },
+}
+```
+
+### Language Support
+
+friendly-snippets includes snippets for:
+- JavaScript/TypeScript
+- Python
+- Go, Rust, C/C++
+- HTML/CSS
+- Lua
+- And many more...
+
+## Creating Custom Snippets
+
+### Method 1: VSCode-style Files
+
+Create snippet files in `~/.config/nvim/snippets/`:
+
+```json title="~/.config/nvim/snippets/lua.json"
+{
+  "Print Debug": {
+    "prefix": "pd",
+    "body": [
+      "print(vim.inspect(${1:variable}))"
+    ],
+    "description": "Print variable with vim.inspect"
+  },
+  "Function": {
+    "prefix": "func",
+    "body": [
+      "local function ${1:name}(${2:params})",
+      "  ${3:-- body}",
+      "end"
+    ]
+  }
+}
+```
+
+**Load custom snippets:**
+
+```lua title="lua/user/cmp.lua"
+require("luasnip.loaders.from_vscode").lazy_load()
+require("luasnip.loaders.from_vscode").lazy_load({
+  paths = { "~/.config/nvim/snippets" }
+})
+```
+
+### Method 2: Lua Snippets
+
+Define snippets directly in Lua:
+
+```lua title="~/.config/nvim/lua/user/snippets.lua"
+local ls = require("luasnip")
+local s = ls.snippet
+local t = ls.text_node
+local i = ls.insert_node
+
+ls.add_snippets("lua", {
+  s("req", {
+    t('local '),
+    i(1, "module"),
+    t(' = require("'),
+    i(2, "module"),
+    t('")')
+  }),
+})
+```
+
+**Load in init.lua:**
+
+```lua
+require("user.snippets")
+```
+
+## Snippet Variables
+
+### Common Variables
+
+VSCode snippet variables:
+
+| Variable | Description |
+|----------|-------------|
+| `$TM_SELECTED_TEXT` | Currently selected text |
+| `$TM_CURRENT_LINE` | Contents of current line |
+| `$TM_FILENAME` | Filename of current file |
+| `$TM_FILENAME_BASE` | Filename without extension |
+| `$TM_DIRECTORY` | Directory of current file |
+| `$CURRENT_YEAR` | Current year |
+| `$CURRENT_MONTH` | Current month (01-12) |
+| `$CURRENT_DATE` | Current day (01-31) |
+
+### Example with Variables
+
+```json
+{
+  "File Header": {
+    "prefix": "header",
+    "body": [
+      "-- File: $TM_FILENAME",
+      "-- Created: $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE",
+      "-- Author: ${1:Your Name}",
+      "",
+      "${2}"
+    ]
+  }
+}
+```
+
+## Advanced Features
+
+### Choice Nodes
+
+Provide multiple options at a tab stop:
+
+```lua
+local ls = require("luasnip")
+local s = ls.snippet
+local c = ls.choice_node
+local t = ls.text_node
+
+ls.add_snippets("lua", {
+  s("log", {
+    t('vim.notify("'),
+    i(1, "message"),
+    t('", vim.log.levels.'),
+    c(2, {
+      t("INFO"),
+      t("WARN"),
+      t("ERROR"),
+      t("DEBUG"),
+    }),
+    t(')')
+  }),
+})
+```
+
+**Usage:**
+- Type `log` and press Tab
+- Press `<C-l>` to cycle through choices
+
+### Dynamic Snippets
+
+Generate content based on context:
+
+```lua
+local ls = require("luasnip")
+local f = ls.function_node
+
+ls.add_snippets("all", {
+  s("date", {
+    f(function()
+      return os.date("%Y-%m-%d")
+    end),
+  }),
+})
+```
+
+### Conditional Expansion
+
+Expand only in specific contexts:
+
+```lua
+ls.add_snippets("lua", {
+  s("func", {
+    t("function "),
+    i(1, "name"),
+    t("("),
+    i(2, "params"),
+    t({")", "  "}),
+    i(3, "-- body"),
+    t({"end"})
+  }, {
+    condition = function()
+      -- Only expand at line start
+      return vim.fn.col('.') == 1
+    end
+  }),
+})
+```
+
+## Customization
+
+### Snippet Appearance
+
+Customize how snippets appear in completion:
+
+```lua title="lua/user/cmp.lua:103"
+vim_item.menu = ({
+  nvim_lsp = "[LSP]",
+  luasnip = "[Snippet]",  -- Change this label
+  buffer = "[Buffer]",
+  path = "[Path]",
+})[entry.source.name]
+```
+
+### Snippet Icon
+
+Change the snippet icon:
+
+```lua title="lua/user/cmp.lua:33"
+kind_icons = {
+  Snippet = "",  -- Change this icon
+  -- ... other icons
+}
+```
+
+### Snippet Source Priority
+
+Change when snippets appear:
+
+```lua
+sources = {
+  { name = "luasnip", priority = 10 },  -- Show snippets first
+  { name = "nvim_lsp", priority = 8 },
+  { name = "buffer", priority = 5 },
+}
+```
+
+## Useful Snippets Examples
+
+### Lua Neovim Config
+
+```json title="snippets/lua.json"
+{
+  "Keymap": {
+    "prefix": "map",
+    "body": [
+      "vim.keymap.set('${1:n}', '${2:key}', '${3:action}', { ${4:opts} })"
+    ]
+  },
+  "Autocmd": {
+    "prefix": "au",
+    "body": [
+      "vim.api.nvim_create_autocmd('${1:Event}', {",
+      "  pattern = '${2:*}',",
+      "  callback = function()",
+      "    ${3:-- action}",
+      "  end,",
+      "})"
+    ]
+  }
+}
+```
+
+### Python
+
+```json title="snippets/python.json"
+{
+  "Main Function": {
+    "prefix": "main",
+    "body": [
+      "def main():",
+      "    ${1:pass}",
+      "",
+      "if __name__ == '__main__':",
+      "    main()"
+    ]
+  },
+  "Try-Except": {
+    "prefix": "try",
+    "body": [
+      "try:",
+      "    ${1:pass}",
+      "except ${2:Exception} as e:",
+      "    ${3:print(f'Error: {e}')}"
+    ]
+  }
+}
+```
+
+## Troubleshooting
+
+### Snippets Not Loading
+
+Check if LuaSnip is properly initialized:
+
+```vim
+:lua print(vim.inspect(require('luasnip').available()))
+```
+
+### Tab Not Working
+
+Verify the mapping is set:
+
+```vim
+:imap <Tab>
+```
+
+Should show the cmp mapping.
+
+### Custom Snippets Not Found
+
+Ensure the path is correct:
+
+```lua
+require("luasnip.loaders.from_vscode").lazy_load({
+  paths = { vim.fn.stdpath("config") .. "/snippets" }
+})
+```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `:LuaSnipEdit` | Edit snippets for current filetype |
+| `:LuaSnipUnlinkCurrent` | Unlink from current snippet |
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="nvim-cmp" icon="keyboard" href="/completion/nvim-cmp">
+    Completion configuration and integration
+  </Card>
+  
+  <Card title="LSP Overview" icon="code" href="/lsp/overview">
+    LSP setup and architecture
+  </Card>
+</CardGroup>

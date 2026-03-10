@@ -1,0 +1,296 @@
+---
+title: "Indent Blankline"
+description: "Configure indent-blankline.nvim for visual indentation guides"
+---
+
+## Overview
+
+Indent Blankline adds visual indentation guides to your code, making it easier to see code structure and nesting levels. It uses Treesitter for intelligent context highlighting.
+
+**Plugin**: [indent-blankline.nvim](https://github.com/lukas-reineke/indent-blankline.nvim)
+
+**Config File**: `lua/user/indentline.lua`
+
+## Features
+
+- Visual indentation guides
+- Current context highlighting
+- Treesitter integration
+- Smart exclusions for special buffers
+- Customizable indent character
+
+## Configuration
+
+### Indent Character
+
+The configuration uses a thin vertical line character:
+
+```lua
+vim.g.indent_blankline_char = "▏"
+```
+
+Alternative characters (commented in config):
+- `"│"` - Full vertical line
+- `"▎"` - Slightly thicker line
+
+### Context Highlighting
+
+The plugin highlights the indentation scope of the current cursor position:
+
+```lua
+vim.g.indent_blankline_show_current_context = true
+```
+
+This uses Treesitter to intelligently determine the current code block.
+
+## Excluded Filetypes
+
+Indent guides are hidden in these special buffers:
+
+```lua
+vim.g.indent_blankline_filetype_exclude = {
+  "help",
+  "startify",
+  "dashboard",
+  "packer",
+  "neogitstatus",
+  "NvimTree",
+  "Trouble",
+}
+```
+
+### Excluded Buffer Types
+
+```lua
+vim.g.indent_blankline_buftype_exclude = { "terminal", "nofile" }
+```
+
+## Treesitter Integration
+
+Indent Blankline uses Treesitter for intelligent context detection:
+
+```lua
+vim.g.indent_blankline_use_treesitter = true
+```
+
+### Context Patterns
+
+These code structures are recognized for context highlighting:
+
+```lua
+vim.g.indent_blankline_context_patterns = {
+  "class",
+  "return",
+  "function",
+  "method",
+  "^if",
+  "^while",
+  "jsx_element",
+  "^for",
+  "^object",
+  "^table",
+  "block",
+  "arguments",
+  "if_statement",
+  "else_clause",
+  "jsx_element",
+  "jsx_self_closing_element",
+  "try_statement",
+  "catch_clause",
+  "import_statement",
+  "operation_type",
+}
+```
+
+This covers:
+- Functions and methods
+- Control flow (if/while/for)
+- Classes and objects
+- JSX elements
+- Try/catch blocks
+- Import statements
+
+## Display Options
+
+### Basic Settings
+
+```lua
+vim.g.indentLine_enabled = 1
+vim.g.indent_blankline_show_trailing_blankline_indent = false
+vim.g.indent_blankline_show_first_indent_level = true
+```
+
+- `indentLine_enabled` - Enable the plugin
+- `show_trailing_blankline_indent` - Don't show guides on empty trailing lines
+- `show_first_indent_level` - Show indent guide at first level
+
+### Color Column Workaround
+
+```lua
+-- HACK: work-around for https://github.com/lukas-reineke/indent-blankline.nvim/issues/59
+vim.wo.colorcolumn = "99999"
+```
+
+This prevents interference with the color column feature.
+
+## Setup Function
+
+```lua
+indent_blankline.setup({
+  show_current_context = true,
+})
+```
+
+## Customization
+
+### Enable Context Start Line
+
+Show an underline at the start of the current context:
+
+```lua
+indent_blankline.setup({
+  show_current_context = true,
+  show_current_context_start = true,
+})
+```
+
+### Colored Indent Guides
+
+Use different colors for different indent levels:
+
+```lua
+vim.cmd [[highlight IndentBlanklineIndent1 guifg=#E06C75 gui=nocombine]]
+vim.cmd [[highlight IndentBlanklineIndent2 guifg=#E5C07B gui=nocombine]]
+vim.cmd [[highlight IndentBlanklineIndent3 guifg=#98C379 gui=nocombine]]
+vim.cmd [[highlight IndentBlanklineIndent4 guifg=#56B6C2 gui=nocombine]]
+vim.cmd [[highlight IndentBlanklineIndent5 guifg=#61AFEF gui=nocombine]]
+vim.cmd [[highlight IndentBlanklineIndent6 guifg=#C678DD gui=nocombine]]
+
+indent_blankline.setup({
+  show_current_context = true,
+  char_highlight_list = {
+    "IndentBlanklineIndent1",
+    "IndentBlanklineIndent2",
+    "IndentBlanklineIndent3",
+    "IndentBlanklineIndent4",
+    "IndentBlanklineIndent5",
+    "IndentBlanklineIndent6",
+  },
+})
+```
+
+### Show Space Characters
+
+```lua
+vim.opt.list = true
+vim.opt.listchars:append "space:⋅"
+
+indent_blankline.setup({
+  show_current_context = true,
+  space_char_blankline = " ",
+})
+```
+
+### Show End of Line
+
+```lua
+vim.opt.listchars:append "eol:↴"
+
+indent_blankline.setup({
+  show_current_context = true,
+  show_end_of_line = true,
+})
+```
+
+### Add More Excluded Filetypes
+
+```lua
+vim.g.indent_blankline_filetype_exclude = {
+  "help",
+  "startify",
+  "dashboard",
+  "packer",
+  "neogitstatus",
+  "NvimTree",
+  "Trouble",
+  "TelescopePrompt",
+  "markdown",
+  "text",
+}
+```
+
+### Change Indent Character
+
+```lua
+vim.g.indent_blankline_char = "│"
+-- or
+vim.g.indent_blankline_char = "┊"
+-- or
+vim.g.indent_blankline_char = "┆"
+```
+
+## Visual Examples
+
+### Without Indent Blankline
+
+```lua
+function hello()
+  if true then
+    print("Hello")
+  end
+end
+```
+
+### With Indent Blankline
+
+```lua
+function hello()
+▏ if true then
+▏ ▏ print("Hello")
+▏ end
+end
+```
+
+### With Context Highlighting
+
+When cursor is on `print("Hello")`, the indent guides for the current `if` block are highlighted.
+
+## Performance
+
+Indent Blankline is designed for performance:
+- Uses Treesitter for efficient parsing
+- Excluded from special buffers to reduce overhead
+- Smart context calculation
+
+## Troubleshooting
+
+### Guides Not Showing
+
+1. Check if the filetype is excluded:
+   ```vim
+   :echo &filetype
+   ```
+
+2. Verify Treesitter is installed:
+   ```vim
+   :TSInstallInfo
+   ```
+
+3. Check if indentation is set correctly:
+   ```vim
+   :set expandtab? shiftwidth? tabstop?
+   ```
+
+### Context Not Highlighting
+
+Ensure Treesitter parser is installed for your language:
+
+```vim
+:TSInstall <language>
+```
+
+## Related Configuration
+
+- [Treesitter](/plugins/treesitter) - Powers context detection
+- [Options](/configuration/options) - Tab and space settings
+- [Alpha](/plugins/alpha) - Excluded from dashboard

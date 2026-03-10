@@ -1,0 +1,251 @@
+---
+title: "Options"
+description: "Configure Neovim editor options and behavior"
+icon: "sliders"
+---
+
+The `lua/user/options.lua` file contains all the core Neovim options that control editor behavior, appearance, and functionality.
+
+## Overview
+
+Options are configured using a table that gets applied to `vim.opt`. This file sets up essential editor settings like clipboard integration, indentation, search behavior, and UI preferences.
+
+## Configuration Structure
+
+All options are defined in a single table and applied using a loop:
+
+```lua lua/user/options.lua
+local options = {
+  -- your options here
+}
+
+for k, v in pairs(options) do
+  vim.opt[k] = v
+end
+```
+
+## File Management
+
+<AccordionGroup>
+  <Accordion title="Backup and Swap Files">
+    ```lua
+    backup = false        -- Disables backup files
+    swapfile = false      -- Disables swap files
+    writebackup = false   -- No backup before overwriting a file
+    undofile = true       -- Enable persistent undo history
+    ```
+    
+    The configuration disables traditional backup and swap files but enables persistent undo, allowing you to undo changes even after closing and reopening a file.
+  </Accordion>
+
+  <Accordion title="File Encoding">
+    ```lua
+    fileencoding = "utf-8"  -- Encoding written to files
+    ```
+    
+    All files are saved with UTF-8 encoding by default.
+  </Accordion>
+</AccordionGroup>
+
+## Editing Behavior
+
+### Indentation
+
+| Option | Value | Description |
+|--------|-------|-------------|
+| `expandtab` | `true` | Convert tabs to spaces |
+| `shiftwidth` | `2` | Number of spaces for each indentation level |
+| `tabstop` | `2` | Number of spaces for a tab character |
+| `smartindent` | `true` | Smart autoindenting on new lines |
+
+### Text Wrapping
+
+```lua
+wrap = true        -- Display long lines as multiple lines
+linebreak = true   -- Break lines at word boundaries
+```
+
+### Clipboard Integration
+
+```lua
+clipboard = "unnamedplus"  -- Use system clipboard
+```
+
+This allows you to copy and paste between Neovim and other applications seamlessly.
+
+## Search Configuration
+
+<CardGroup cols={2}>
+  <Card title="Case Sensitivity" icon="magnifying-glass">
+    ```lua
+    ignorecase = true  -- Ignore case in searches
+    smartcase = true   -- Override ignorecase if search contains uppercase
+    ```
+  </Card>
+  
+  <Card title="Highlighting" icon="highlighter">
+    ```lua
+    hlsearch = true  -- Highlight all search matches
+    ```
+  </Card>
+</CardGroup>
+
+## UI and Display
+
+### Line Numbers
+
+```lua
+number = true           -- Show line numbers
+relativenumber = false  -- Disable relative line numbers
+numberwidth = 4         -- Width of the line number column
+```
+
+### Visual Indicators
+
+| Option | Value | Description |
+|--------|-------|-------------|
+| `cursorline` | `true` | Highlight the current line |
+| `signcolumn` | `"yes"` | Always show sign column (for git, diagnostics, etc.) |
+| `showmode` | `false` | Don't show mode (INSERT, VISUAL, etc.) in command line |
+| `showtabline` | `2` | Always show tab line |
+
+### Scrolling
+
+```lua
+scrolloff = 8       -- Minimum lines to keep above/below cursor
+sidescrolloff = 8   -- Minimum columns to keep left/right of cursor
+```
+
+These settings ensure the cursor never gets too close to the edge of the screen.
+
+### Split Windows
+
+```lua
+splitbelow = true   -- Horizontal splits open below
+splitright = true   -- Vertical splits open to the right
+```
+
+## Completion and Popup
+
+```lua
+completeopt = { "menuone", "noselect" }  -- Completion menu behavior
+pumheight = 10                           -- Maximum items in popup menu
+```
+
+## Performance and Timing
+
+<Info>
+  These settings affect how responsive Neovim feels and how quickly it triggers certain events.
+</Info>
+
+```lua
+timeoutlen = 300   -- Time to wait for mapped sequence (ms)
+updatetime = 300   -- Time before swap file is written (ms)
+```
+
+- **timeoutlen**: Affects how quickly key combinations must be typed
+- **updatetime**: Controls how quickly CursorHold events fire (affects diagnostics, git signs, etc.)
+
+## Advanced Options
+
+### Command Line
+
+```lua
+cmdheight = 2  -- Height of the command line area
+```
+
+Provides more space for displaying messages and command output.
+
+### Mouse Support
+
+```lua
+mouse = "a"  -- Enable mouse in all modes
+```
+
+### Markdown Concealment
+
+```lua
+conceallevel = 0  -- Don't hide syntax (e.g., `` in markdown)
+```
+
+### Font Configuration
+
+```lua
+guifont = "monospace:h17"  -- Font for GUI Neovim (e.g., Neovide)
+```
+
+### Navigation
+
+```lua
+whichwrap = "bs<>[]hl"  -- Keys that can move to previous/next line
+```
+
+Allows Backspace, Space, arrow keys, and h/l to wrap to the next/previous line.
+
+## Additional Settings
+
+These settings are applied after the main options table:
+
+### Short Messages
+
+```lua
+vim.opt.shortmess:append "c"
+```
+
+Don't show completion menu messages.
+
+### Keyword Recognition
+
+```lua
+vim.opt.iskeyword:append "-"
+```
+
+Treats hyphenated words as a single word for navigation and search.
+
+### Format Options
+
+```lua
+vim.opt.formatoptions:remove({ "c", "r", "o" })
+```
+
+Prevents automatic comment continuation on new lines.
+
+### Runtime Path
+
+```lua
+vim.opt.runtimepath:remove("/usr/share/vim/vimfiles")
+```
+
+Separates Neovim plugins from Vim plugins.
+
+## Customization Tips
+
+<Tip>
+  To modify any option, simply change the value in the `options` table and restart Neovim or source the file with `:luafile %`.
+</Tip>
+
+<CodeGroup>
+```lua Enable relative line numbers
+relativenumber = true  -- Change from false to true
+```
+
+```lua Adjust indentation
+shiftwidth = 4  -- Change from 2 to 4 spaces
+tabstop = 4     -- Change from 2 to 4 spaces
+```
+
+```lua Enable true color support
+termguicolors = true  -- Uncomment this line
+```
+</CodeGroup>
+
+## See Also
+
+<CardGroup cols={2}>
+  <Card title="Keymaps" icon="keyboard" href="/configuration/keymaps">
+    Configure custom key bindings
+  </Card>
+  <Card title="Autocommands" icon="wand-magic-sparkles" href="/configuration/autocommands">
+    Set up automatic commands
+  </Card>
+</CardGroup>

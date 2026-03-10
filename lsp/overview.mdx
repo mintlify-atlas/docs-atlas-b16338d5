@@ -1,0 +1,78 @@
+---
+title: LSP Overview
+description: Understanding the Language Server Protocol setup and architecture
+---
+
+The LSP (Language Server Protocol) configuration provides intelligent code features like autocompletion, go-to-definition, diagnostics, and more.
+
+## Architecture
+
+The LSP setup is organized into several modules in `lua/user/lsp/`:
+
+- **init.lua** - Entry point that initializes all LSP components
+- **mason.lua** - Manages LSP server installation via Mason
+- **handlers.lua** - Configures LSP handlers, keymaps, and capabilities
+- **null-ls.lua** - Sets up formatters and linters through null-ls
+- **settings/** - Server-specific configuration files
+
+## Initialization Flow
+
+The LSP is initialized in this order:
+
+```lua title="lua/user/lsp/init.lua"
+require "user.lsp.mason"           -- Install LSP servers
+require("user.lsp.handlers").setup() -- Configure handlers
+require "user.lsp.null-ls"          -- Setup formatters/linters
+```
+
+## Configured Servers
+
+By default, the following LSP servers are configured:
+
+- **lua_ls** - Lua language server with Neovim API support
+- **pyright** - Python language server
+- **jsonls** - JSON language server with schema validation
+
+Commented servers (optional):
+- cssls, html, tsserver, bashls, yamlls
+
+## Key Features
+
+### Diagnostics
+
+- Custom signs for errors, warnings, hints, and info
+- Virtual text disabled for cleaner display
+- Floating diagnostics with rounded borders
+- Severity-based sorting
+
+### Capabilities
+
+- Snippet support enabled
+- nvim-cmp integration for enhanced completions
+- Document formatting support
+
+### UI Enhancements
+
+- Rounded borders for hover and signature help
+- Custom diagnostic signs with icons
+- Illuminate integration for symbol highlighting
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Mason Setup" icon="box" href="/lsp/mason">
+    Learn how to install and manage LSP servers
+  </Card>
+  
+  <Card title="LSP Handlers" icon="gear" href="/lsp/handlers">
+    Configure keybindings and LSP behavior
+  </Card>
+  
+  <Card title="Null-ls" icon="circle-check" href="/lsp/null-ls">
+    Setup formatters and linters
+  </Card>
+  
+  <Card title="Completion" icon="keyboard" href="/completion/nvim-cmp">
+    Configure autocompletion with nvim-cmp
+  </Card>
+</CardGroup>

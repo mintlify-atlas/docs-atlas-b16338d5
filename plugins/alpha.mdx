@@ -1,0 +1,145 @@
+---
+title: "Alpha Dashboard"
+description: "Configure the Alpha.nvim dashboard for a personalized startup screen"
+---
+
+## Overview
+
+Alpha provides a customizable dashboard that displays when you launch Neovim. This configuration creates a welcoming startup screen with quick access to common actions.
+
+**Plugin**: [alpha-nvim](https://github.com/goolord/alpha-nvim)
+
+**Config File**: `lua/user/alpha.lua`
+
+## Features
+
+- Custom ASCII art header
+- Quick action buttons
+- Custom footer text
+- Automatic theme loading
+
+## Configuration
+
+### Dashboard Header
+
+The configuration displays a custom Neovim ASCII art logo:
+
+```lua
+dashboard.section.header.val = {
+  [[                               __                ]],
+  [[  ___     ___    ___   __  __ /\_\    ___ ___    ]],
+  [[ / _ `\  / __`\ / __`\/\ \/\ \\/\ \  / __` __`\  ]],
+  [[/\ \/\ \/\  __//\ \_\ \ \ \_/ |\ \ \/\ \/\ \/\ \ ]],
+  [[\ \_\ \_\ \____\ \____/\ \___/  \ \_\ \_\ \_\ \_\]],
+  [[ \/_/\/_/\/____/\/___/  \/__/    \/_/\/_/\/_/\/_/]],
+}
+```
+
+### Quick Action Buttons
+
+The dashboard includes seven convenient shortcuts:
+
+| Key | Icon | Action | Description |
+|-----|------|--------|-------------|
+| `f` | 📁 | Find file | Opens Telescope file finder |
+| `e` | 📄 | New file | Creates a new empty buffer |
+| `p` | 📂 | Find project | Opens Telescope projects |
+| `r` | 🕐 | Recently used files | Shows recent files |
+| `t` | 🔍 | Find text | Opens live grep search |
+| `c` | ⚙️ | Configuration | Opens init.lua |
+| `q` | ❌ | Quit Neovim | Exits Neovim |
+
+```lua
+dashboard.section.buttons.val = {
+  dashboard.button("f", "  Find file", ":Telescope find_files <CR>"),
+  dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
+  dashboard.button("p", "  Find project", ":Telescope projects <CR>"),
+  dashboard.button("r", "  Recently used files", ":Telescope oldfiles <CR>"),
+  dashboard.button("t", "󱎸  Find text", ":Telescope live_grep <CR>"),
+  dashboard.button("c", "  Configuration", ":e $MYVIMRC <CR>"),
+  dashboard.button("q", "  Quit Neovim", ":qa<CR>"),
+}
+```
+
+### Footer
+
+The footer displays a custom message (default: "chrisatmachine.com"):
+
+```lua
+local function footer()
+  return "chrisatmachine.com"
+end
+
+dashboard.section.footer.val = footer()
+```
+
+<Note>
+The configuration includes commented code for displaying fortune quotes. Uncomment this section if you have `fortune-mod` installed on your system.
+</Note>
+
+### Highlight Groups
+
+The dashboard uses custom highlight groups for styling:
+
+```lua
+dashboard.section.footer.opts.hl = "Type"
+dashboard.section.header.opts.hl = "Include"
+dashboard.section.buttons.opts.hl = "Keyword"
+```
+
+## Customization
+
+### Change the Header
+
+Replace the ASCII art with your own design:
+
+```lua
+dashboard.section.header.val = {
+  [[ YOUR CUSTOM ]],
+  [[ ASCII ART   ]],
+  [[ HERE        ]],
+}
+```
+
+### Add Custom Buttons
+
+Add new quick actions:
+
+```lua
+dashboard.section.buttons.val = {
+  -- ... existing buttons ...
+  dashboard.button("s", "  Settings", ":e ~/.config/nvim/lua/user/options.lua <CR>"),
+}
+```
+
+### Enable Fortune Quotes
+
+Uncomment the fortune function for random quotes:
+
+```lua
+local function footer()
+  local handle = io.popen("fortune")
+  local fortune = handle:read("*a")
+  handle:close()
+  return fortune
+end
+```
+
+## Manual Trigger
+
+Open the Alpha dashboard manually:
+
+```vim
+:Alpha
+```
+
+Or use the which-key binding:
+
+```
+<leader>a
+```
+
+## Related Configuration
+
+- [Which-Key](/plugins/which-key) - Provides `<leader>a` shortcut
+- [Telescope](/plugins/telescope) - Powers the file and text search buttons

@@ -1,0 +1,351 @@
+---
+title: Null-ls Configuration
+description: Setting up formatters and linters with null-ls
+---
+
+Null-ls bridges non-LSP tools (formatters, linters, code actions) into the LSP ecosystem, allowing them to work seamlessly with Neovim's LSP client.
+
+## Overview
+
+The null-ls configuration is located in `lua/user/lsp/null-ls.lua` and provides:
+
+- Code formatting via external tools
+- Diagnostics from linters
+- Code actions
+- Hover information
+
+## Configuration
+
+### Basic Setup
+
+```lua title="lua/user/lsp/null-ls.lua:1"
+local null_ls_status_ok, null_ls = pcall(require, "null-ls")
+if not null_ls_status_ok then
+  return
+end
+
+local formatting = null_ls.builtins.formatting
+local diagnostics = null_ls.builtins.diagnostics
+
+null_ls.setup({
+  debug = false,
+  sources = {
+    -- Formatting sources
+    formatting.prettier.with({ 
+      extra_args = { "--no-semi", "--single-quote", "--jsx-single-quote" } 
+    }),
+    formatting.black.with({ extra_args = { "--fast" } }),
+    formatting.stylua,
+    
+    -- Diagnostic sources (commented)
+    -- diagnostics.flake8
+  },
+})
+```
+
+## Configured Tools
+
+### Formatters
+
+#### Prettier
+JavaScript/TypeScript/CSS/HTML/JSON formatter:
+
+```lua title="lua/user/lsp/null-ls.lua:14"
+formatting.prettier.with({ 
+  extra_args = { 
+    "--no-semi",           -- No semicolons
+    "--single-quote",       -- Single quotes
+    "--jsx-single-quote"    -- Single quotes in JSX
+  } 
+})
+```
+
+**Supported files:**
+- JavaScript (.js, .jsx)
+- TypeScript (.ts, .tsx)
+- JSON, CSS, HTML, Markdown
+- YAML, GraphQL
+
+#### Black
+Python code formatter:
+
+```lua title="lua/user/lsp/null-ls.lua:15"
+formatting.black.with({ extra_args = { "--fast" } })
+```
+
+**Options:**
+- `--fast`: Skip sanity checks for faster formatting
+
+#### Stylua
+Lua code formatter:
+
+```lua title="lua/user/lsp/null-ls.lua:16"
+formatting.stylua
+```
+
+**Features:**
+- Consistent Lua formatting
+- Configurable via `.stylua.toml`
+
+### Diagnostics (Optional)
+
+```lua title="lua/user/lsp/null-ls.lua:17"
+-- diagnostics.flake8  -- Python linter
+```
+
+Uncomment to enable Python linting with flake8.
+
+## Using Formatters
+
+### Format Current Buffer
+
+```vim
+:lua vim.lsp.buf.format({ async = true })
+```
+
+Or use the keymap from handlers: `<leader>lf`
+
+### Format on Save (Optional)
+
+Add to `lua/user/lsp/null-ls.lua`:
+
+```lua
+null_ls.setup({
+  debug = false,
+  sources = { ... },
+  on_attach = function(client, bufnr)
+    if client.supports_method("textDocument/formatting") then
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        buffer = bufnr,
+        callback = function()
+          vim.lsp.buf.format({ bufnr = bufnr })
+        end,
+      })
+    end
+  end,
+})
+```
+
+## Adding New Formatters
+
+### Step 1: Install the Tool
+
+Install via Mason or system package manager:
+
+```vim
+:MasonInstall prettier
+:MasonInstall black
+:MasonInstall stylua
+```
+
+### Step 2: Add to Sources
+
+Edit `lua/user/lsp/null-ls.lua:13`:
+
+```lua
+sources = {
+  formatting.prettier,
+  formatting.black,
+  formatting.stylua,
+  formatting.rustfmt,  -- Add Rust formatter
+}
+```
+
+### Step 3: Configure Options (Optional)
+
+```lua
+formatting.rustfmt.with({
+  extra_args = { "--edition", "2021" }
+})
+```
+
+## Adding Linters
+
+### Available Diagnostic Sources
+
+Common linters available in null-ls:
+
+```lua
+-- Python
+diagnostics.flake8
+diagnostics.pylint
+diagnostics.mypy
+
+-- JavaScript/TypeScript
+diagnostics.eslint
+
+-- Shell
+diagnostics.shellcheck
+
+-- Lua
+diagnostics.luacheck
+```
+
+### Example: Adding ESLint
+
+```lua title="lua/user/lsp/null-ls.lua"
+sources = {
+  -- Formatters
+  formatting.prettier,
+  
+  -- Linters
+  diagnostics.eslint.with({
+    condition = function(utils)
+      return utils.root_has_file({".eslintrc.js", ".eslintrc.json"})
+    end,
+  }),
+}
+```
+
+## Formatting vs LSP Formatting
+
+Null-ls is preferred for formatting because:
+
+1. **More Control**: Configure formatter options precisely
+2. **Consistency**: Same formatter used in editor and CI/CD
+3. **Performance**: Formatters are often faster than LSP
+
+### Disabling LSP Formatting
+
+In `lua/user/lsp/handlers.lua:75`, specific LSP servers have formatting disabled:
+
+```lua
+M.on_attach = function(client, bufnr)
+  if client.name == "tsserver" then
+    client.server_capabilities.documentFormattingProvider = false
+  end
+  
+  if client.name == "sumneko_lua" then
+    client.server_capabilities.documentFormattingProvider = false
+  end
+end
+```
+
+This ensures null-ls formatters (Prettier, Stylua) are used instead.
+
+## Troubleshooting
+
+### Formatter Not Working
+
+1. Check if tool is installed:
+   ```vim
+   :Mason
+   ```
+
+2. Enable debug mode:
+   ```lua
+   null_ls.setup({
+     debug = true,
+     -- ...
+   })
+   ```
+
+3. Check null-ls log:
+   ```vim
+   :NullLsLog
+   ```
+
+### Format Command Not Found
+
+Ensure LSP is attached:
+```vim
+:LspInfo
+```
+
+Null-ls should appear in the list of attached clients.
+
+### Conflicting Formatters
+
+If multiple formatters claim the same filetype:
+
+```lua
+formatting.prettier.with({
+  filetypes = { "javascript", "typescript" },  -- Limit to specific types
+})
+```
+
+## Configuration Files
+
+### Prettier
+
+Create `.prettierrc` in project root:
+
+```json
+{
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5"
+}
+```
+
+### Black
+
+Create `pyproject.toml`:
+
+```toml
+[tool.black]
+line-length = 88
+target-version = ['py39']
+```
+
+### Stylua
+
+Create `.stylua.toml`:
+
+```toml
+column_width = 100
+line_endings = "Unix"
+indent_type = "Spaces"
+indent_width = 2
+```
+
+## Advanced Configuration
+
+### Conditional Formatting
+
+Only format if config file exists:
+
+```lua
+formatting.prettier.with({
+  condition = function(utils)
+    return utils.root_has_file({
+      ".prettierrc",
+      ".prettierrc.json",
+      "prettier.config.js",
+    })
+  end,
+})
+```
+
+### Custom Sources
+
+Create a custom null-ls source:
+
+```lua
+local custom_formatter = {
+  method = null_ls.methods.FORMATTING,
+  filetypes = { "markdown" },
+  generator = null_ls.formatter({
+    command = "custom-md-fmt",
+    args = { "$FILENAME" },
+    to_stdin = true,
+  }),
+}
+
+null_ls.setup({
+  sources = { custom_formatter },
+})
+```
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="LSP Handlers" icon="gear" href="/lsp/handlers">
+    Configure LSP keybindings and behavior
+  </Card>
+  
+  <Card title="Mason Setup" icon="box" href="/lsp/mason">
+    Install formatters and linters
+  </Card>
+</CardGroup>

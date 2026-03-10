@@ -1,0 +1,305 @@
+---
+title: "Which-Key"
+description: "Configure which-key.nvim to display available keybindings"
+---
+
+## Overview
+
+Which-Key displays a popup with possible keybindings after you start typing a command, making it easy to discover and remember shortcuts.
+
+**Plugin**: [which-key.nvim](https://github.com/folke/which-key.nvim)
+
+**Config File**: `lua/user/whichkey.lua`
+
+## Features
+
+- Popup showing available keybindings
+- Organized command groups
+- Built-in help for marks, registers, and spelling
+- Customizable window and icons
+- Automatic trigger after timeout
+
+## Quick Start
+
+Press `<leader>` (space by default) and wait briefly. A popup will appear showing all available keybindings starting with the leader key.
+
+## Leader Key Mappings
+
+All mappings use `<leader>` as the prefix (typically `<Space>`).
+
+### Top-Level Shortcuts
+
+| Key | Command | Description |
+|-----|---------|-------------|
+| `<leader>a` | Alpha | Open dashboard |
+| `<leader>b` | Buffers | Telescope buffer picker |
+| `<leader>e` | Explorer | Toggle NvimTree |
+| `<leader>w` | Save | Write current file |
+| `<leader>q` | Quit | Quit Neovim |
+| `<leader>c` | Close Buffer | Close current buffer |
+| `<leader>h` | No Highlight | Clear search highlighting |
+| `<leader>f` | Find files | Telescope file finder |
+| `<leader>F` | Find Text | Live grep search |
+| `<leader>P` | Projects | Telescope projects |
+
+### Packer Commands (`<leader>p`)
+
+| Key | Command | Description |
+|-----|---------|-------------|
+| `<leader>pc` | PackerCompile | Compile plugin configs |
+| `<leader>pi` | PackerInstall | Install plugins |
+| `<leader>ps` | PackerSync | Sync plugins |
+| `<leader>pS` | PackerStatus | Show plugin status |
+| `<leader>pu` | PackerUpdate | Update plugins |
+
+### Git Commands (`<leader>g`)
+
+| Key | Command | Description |
+|-----|---------|-------------|
+| `<leader>gg` | Lazygit | Open Lazygit |
+| `<leader>gj` | Next Hunk | Jump to next git hunk |
+| `<leader>gk` | Prev Hunk | Jump to previous hunk |
+| `<leader>gl` | Blame | Show git blame |
+| `<leader>gp` | Preview Hunk | Preview git changes |
+| `<leader>gr` | Reset Hunk | Reset current hunk |
+| `<leader>gR` | Reset Buffer | Reset entire buffer |
+| `<leader>gs` | Stage Hunk | Stage current hunk |
+| `<leader>gu` | Undo Stage Hunk | Undo staging |
+| `<leader>go` | Open changed file | Telescope git status |
+| `<leader>gb` | Checkout branch | Telescope git branches |
+| `<leader>gc` | Checkout commit | Telescope git commits |
+| `<leader>gd` | Diff | Show diff against HEAD |
+
+### LSP Commands (`<leader>l`)
+
+| Key | Command | Description |
+|-----|---------|-------------|
+| `<leader>la` | Code Action | Show code actions |
+| `<leader>ld` | Document Diagnostics | Show buffer diagnostics |
+| `<leader>lw` | Workspace Diagnostics | Show all diagnostics |
+| `<leader>lf` | Format | Format current buffer |
+| `<leader>li` | Info | Show LSP info |
+| `<leader>lI` | Installer Info | Show LSP installer info |
+| `<leader>lj` | Next Diagnostic | Jump to next diagnostic |
+| `<leader>lk` | Prev Diagnostic | Jump to previous diagnostic |
+| `<leader>ll` | CodeLens Action | Run code lens |
+| `<leader>lq` | Quickfix | Add to quickfix list |
+| `<leader>lr` | Rename | Rename symbol |
+| `<leader>ls` | Document Symbols | Telescope document symbols |
+| `<leader>lS` | Workspace Symbols | Telescope workspace symbols |
+
+### Search Commands (`<leader>s`)
+
+| Key | Command | Description |
+|-----|---------|-------------|
+| `<leader>sb` | Checkout branch | Telescope git branches |
+| `<leader>sc` | Colorscheme | Browse color schemes |
+| `<leader>sh` | Find Help | Search help tags |
+| `<leader>sM` | Man Pages | Search man pages |
+| `<leader>sr` | Open Recent File | Telescope old files |
+| `<leader>sR` | Registers | Show registers |
+| `<leader>sk` | Keymaps | Search keymaps |
+| `<leader>sC` | Commands | Search commands |
+
+### Terminal Commands (`<leader>t`)
+
+| Key | Command | Description |
+|-----|---------|-------------|
+| `<leader>tn` | Node | Open Node REPL |
+| `<leader>tu` | NCDU | Open disk usage analyzer |
+| `<leader>tt` | Htop | Open system monitor |
+| `<leader>tp` | Python | Open Python REPL |
+| `<leader>tf` | Float | Floating terminal |
+| `<leader>th` | Horizontal | Horizontal terminal |
+| `<leader>tv` | Vertical | Vertical terminal |
+
+## Plugin Configuration
+
+### Built-in Helpers
+
+Which-Key provides automatic help for:
+
+```lua
+plugins = {
+  marks = true,        -- Shows marks on ' and `
+  registers = true,    -- Shows registers on " or <C-r>
+  spelling = {
+    enabled = true,    -- Shows suggestions on z=
+    suggestions = 20,  -- Number of suggestions
+  },
+  presets = {
+    operators = false, -- Help for d, y, c operators
+    motions = true,    -- Help for motions
+    text_objects = true, -- Help for text objects
+    windows = true,    -- Help for <C-w> commands
+    nav = true,        -- Help for navigation
+    z = true,          -- Help for z commands
+    g = true,          -- Help for g commands
+  },
+}
+```
+
+### Window Style
+
+```lua
+window = {
+  border = "rounded",           -- Window border style
+  position = "bottom",          -- Position on screen
+  margin = { 1, 0, 1, 0 },     -- Margins [top, right, bottom, left]
+  padding = { 2, 2, 2, 2 },    -- Padding [top, right, bottom, left]
+  winblend = 0,                 -- Transparency
+}
+```
+
+### Layout
+
+```lua
+layout = {
+  height = { min = 4, max = 25 },  -- Window height
+  width = { min = 20, max = 50 },  -- Window width
+  spacing = 3,                      -- Spacing between columns
+  align = "left",                   -- Column alignment
+}
+```
+
+### Icons
+
+```lua
+icons = {
+  breadcrumb = "»",  -- Symbol in command line
+  separator = "➜",   -- Between key and label
+  group = "+",       -- Prefix for groups
+}
+```
+
+### Popup Navigation
+
+```lua
+popup_mappings = {
+  scroll_down = "<c-d>",  -- Scroll down in popup
+  scroll_up = "<c-u>",    -- Scroll up in popup
+}
+```
+
+## Trigger Behavior
+
+```lua
+triggers = "auto",  -- Automatically setup triggers
+-- Or specify manually:
+-- triggers = {"<leader>"}
+```
+
+### Blacklisted Triggers
+
+Prevents Which-Key from triggering on certain keys:
+
+```lua
+triggers_blacklist = {
+  i = { "j", "k" },  -- Don't trigger on j/k in insert mode
+  v = { "j", "k" },  -- Don't trigger on j/k in visual mode
+}
+```
+
+## Customization
+
+### Add Custom Mappings
+
+Add your own keybinding groups:
+
+```lua
+local mappings = {
+  -- ... existing mappings ...
+  
+  d = {
+    name = "Debug",
+    b = { "<cmd>lua require'dap'.toggle_breakpoint()<cr>", "Breakpoint" },
+    c = { "<cmd>lua require'dap'.continue()<cr>", "Continue" },
+    s = { "<cmd>lua require'dap'.step_over()<cr>", "Step Over" },
+  },
+}
+```
+
+### Change Window Position
+
+```lua
+window = {
+  border = "rounded",
+  position = "top",  -- Move to top of screen
+}
+```
+
+### Change Border Style
+
+Available styles: `"none"`, `"single"`, `"double"`, `"shadow"`, `"rounded"`
+
+```lua
+window = {
+  border = "double",
+}
+```
+
+### Show Operator Help
+
+Enable preset for operators (d, y, c, etc.):
+
+```lua
+presets = {
+  operators = true,  -- Show help for d, y, c
+}
+```
+
+### Custom Key Labels
+
+Override key display names:
+
+```lua
+key_labels = {
+  ["<space>"] = "SPC",
+  ["<cr>"] = "RET",
+  ["<tab>"] = "TAB",
+}
+```
+
+### Ignore Missing Labels
+
+```lua
+ignore_missing = false,  -- Show warning for mappings without labels
+```
+
+### Hide Implementation Details
+
+```lua
+hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "call", "lua", "^:", "^ " }
+```
+
+## Usage Tips
+
+### Discover Commands
+
+1. Press `<leader>` and wait
+2. See all available top-level commands
+3. Press a group key (e.g., `g` for Git)
+4. See all commands in that group
+
+### Learn Keybindings
+
+Which-Key helps you learn keybindings by showing:
+- What keys are available
+- What each key does
+- Organized groups of related commands
+
+### Built-in Help
+
+Try these to see Which-Key's built-in helpers:
+
+- Press `'` to see marks
+- Press `"` to see registers
+- Press `z=` for spelling suggestions
+- Press `<C-r>` in insert mode for registers
+
+## Related Configuration
+
+- [Keymaps](/configuration/keymaps) - Basic keybinding configuration
+- [Telescope](/plugins/telescope) - Many commands use Telescope
+- [LSP](/lsp/overview) - LSP command group
+- [Gitsigns](/plugins/gitsigns) - Git command group

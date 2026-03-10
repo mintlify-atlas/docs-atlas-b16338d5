@@ -1,0 +1,115 @@
+---
+title: Introduction
+description: Learn what Neovim from Scratch is and who it's designed for
+---
+
+## What is Neovim from Scratch?
+
+Neovim from Scratch is a comprehensive configuration that transforms Neovim into a powerful, fully-featured development environment. Built entirely in Lua, this configuration provides a solid foundation for developers who want to understand and customize every aspect of their editor.
+
+This project demonstrates how to configure Neovim from the ground up, covering everything from basic options and keymaps to advanced features like LSP (Language Server Protocol), autocompletion, syntax highlighting, and Git integration.
+
+<Note>
+All packages in the master branch are pinned to specific commits to ensure stability. You can always follow along with the [video series](https://www.youtube.com/watch?v=ctH-a-1eUME&list=PLhoH5vyxr6Qq41NFL4GvhFp-WLd5xzIzZ) if you encounter any issues.
+</Note>
+
+## Key Features
+
+Neovim from Scratch includes a carefully curated set of plugins and configurations:
+
+- **Plugin Management**: Automated plugin installation with Packer.nvim
+- **LSP Support**: Full Language Server Protocol integration with Mason for easy server management
+- **Autocompletion**: Intelligent code completion with nvim-cmp
+- **Syntax Highlighting**: Advanced syntax highlighting with Treesitter
+- **File Navigation**: Fast file finding with Telescope and file tree with nvim-tree
+- **Git Integration**: Git status, blame, and diff views with Gitsigns
+- **Terminal Integration**: Integrated terminal with ToggleTerm
+- **Visual Enhancements**: Modern UI with Lualine, Bufferline, and Alpha dashboard
+- **Smart Editing**: Autopairs, commenting, and indentation guides
+
+## Who Is This For?
+
+### Developers New to Neovim
+
+If you're coming from VSCode, IntelliJ, or other GUI editors and want to learn Neovim, this configuration provides:
+
+- A complete, working setup out of the box
+- Well-organized, readable Lua code that's easy to understand
+- Sensible defaults that feel familiar to modern editors
+- Extensive comments explaining what each configuration does
+
+### Experienced Vim/Neovim Users
+
+For those already familiar with Vim/Neovim, this project offers:
+
+- A reference implementation of modern Neovim practices
+- Examples of plugin integration and configuration
+- A stable base to build your custom configuration upon
+- Insights into Lua-based configuration patterns
+
+### Learners and Educators
+
+The project is excellent for:
+
+- Following along with the accompanying video series
+- Understanding how Neovim plugins work together
+- Learning Lua scripting in the context of Neovim
+- Teaching others about Neovim configuration
+
+## Philosophy
+
+Neovim from Scratch follows these core principles:
+
+1. **Transparency**: Every configuration choice is visible and documented
+2. **Modularity**: Each feature is in its own file for easy customization
+3. **Stability**: Pinned package versions prevent unexpected breakage
+4. **Education**: Code is written to be understood, not just to work
+
+<Warning>
+This configuration has evolved over time. For a more actively maintained setup building on these principles, consider:
+- [nvim-basic-ide](https://github.com/LunarVim/nvim-basic-ide) - A simple IDE based on these concepts
+- [LunarVim](https://www.lunarvim.org/) - A mature, fully-featured Neovim distribution
+</Warning>
+
+## Project Structure
+
+The configuration is organized into logical modules:
+
+```
+~/.config/nvim/
+├── init.lua                 # Entry point - loads all modules
+└── lua/user/
+    ├── options.lua          # Editor options and settings
+    ├── keymaps.lua          # Key mappings
+    ├── plugins.lua          # Plugin definitions
+    ├── colorscheme.lua      # Color scheme configuration
+    ├── cmp.lua              # Completion configuration
+    ├── lsp/                 # LSP configurations
+    │   ├── init.lua
+    │   ├── handlers.lua
+    │   ├── mason.lua
+    │   └── settings/        # Language-specific settings
+    ├── telescope.lua        # Fuzzy finder
+    ├── treesitter.lua       # Syntax highlighting
+    ├── autopairs.lua        # Auto-closing pairs
+    ├── comment.lua          # Commenting support
+    ├── gitsigns.lua         # Git integration
+    ├── nvim-tree.lua        # File explorer
+    ├── bufferline.lua       # Buffer tabs
+    ├── lualine.lua          # Status line
+    ├── toggleterm.lua       # Terminal integration
+    ├── alpha.lua            # Dashboard
+    └── whichkey.lua         # Key binding help
+```
+
+## Getting Support
+
+If you need help or want to connect with the community:
+
+- Join the [Matrix channel](https://matrix.to/#/#neovim-atmachine:matrix.org) for general support
+- Check the [GitHub repository](https://github.com/LunarVim/Neovim-from-scratch) for issues and discussions
+- Watch the [video series](https://www.youtube.com/watch?v=ctH-a-1eUME&list=PLhoH5vyxr6Qq41NFL4GvhFp-WLd5xzIzZ) for step-by-step guidance
+
+## Next Steps
+
+Ready to get started? Continue to the [Prerequisites](/prerequisites) page to ensure your system is ready, then follow the [Installation](/installation) guide to set up your configuration.

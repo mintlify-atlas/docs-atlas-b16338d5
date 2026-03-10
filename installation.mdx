@@ -1,0 +1,235 @@
+---
+title: Installation
+description: Step-by-step guide to installing Neovim from Scratch
+---
+
+## Before You Begin
+
+Make sure you've completed all the [prerequisites](/prerequisites) before proceeding with the installation.
+
+<Warning>
+This installation will replace your existing Neovim configuration. If you have a current configuration you want to keep, **back it up first**:
+
+```bash
+mv ~/.config/nvim ~/.config/nvim.backup
+mv ~/.local/share/nvim ~/.local/share/nvim.backup
+```
+</Warning>
+
+## Installation Steps
+
+<Steps>
+  <Step title="Clone the Repository">
+    Clone the Neovim from Scratch repository into your Neovim configuration directory:
+
+    ```bash
+    git clone https://github.com/LunarVim/Neovim-from-scratch.git ~/.config/nvim
+    ```
+
+    This places the configuration files in the standard location where Neovim looks for user configurations.
+
+    <Note>
+    On Windows, the configuration directory is `~/AppData/Local/nvim` instead of `~/.config/nvim`.
+    </Note>
+  </Step>
+
+  <Step title="Launch Neovim">
+    Start Neovim for the first time:
+
+    ```bash
+    nvim
+    ```
+
+    On first launch, you'll see Packer automatically install itself and begin downloading plugins. This process may take a minute or two depending on your internet connection.
+
+    You'll see output similar to:
+
+    ```
+    Installing packer close and reopen Neovim...
+    Cloning into '~/.local/share/nvim/site/pack/packer/start/packer.nvim'...
+    ```
+  </Step>
+
+  <Step title="Wait for Plugin Installation">
+    Packer will automatically install all configured plugins. You'll see a floating window showing the installation progress with status for each plugin.
+
+    The installation includes:
+    - LSP support (nvim-lspconfig, Mason)
+    - Autocompletion (nvim-cmp and sources)
+    - Syntax highlighting (Treesitter)
+    - File navigation (Telescope, nvim-tree)
+    - Git integration (Gitsigns)
+    - UI enhancements (Lualine, Bufferline, Alpha)
+    - And many more plugins
+
+    <Note>
+    If you see any errors during the initial installation, try closing and reopening Neovim. The `plugins.lua` file is configured to automatically sync Packer whenever you save it.
+    </Note>
+  </Step>
+
+  <Step title="Restart Neovim">
+    After the initial plugin installation completes, close and reopen Neovim:
+
+    ```bash
+    # Close Neovim
+    :q
+
+    # Reopen Neovim
+    nvim
+    ```
+
+    On this second launch, you'll notice Treesitter pulling in language parsers. This is normal and expected behavior.
+  </Step>
+
+  <Step title="Install Language Servers with Mason">
+    Mason is used to install and manage LSP servers, formatters, and linters. To open Mason:
+
+    ```vim
+    :Mason
+    ```
+
+    The configuration automatically installs these language servers:
+    - `lua_ls` - Lua language server
+    - `pyright` - Python language server  
+    - `jsonls` - JSON language server
+
+    <Note>
+    Mason will automatically install these servers on first launch. You can install additional servers through the Mason UI using the `i` key when hovering over a server name.
+    </Note>
+
+    To see all available servers and tools:
+    - Press `i` to install
+    - Press `X` to uninstall
+    - Press `u` to update
+    - Press `g?` for help
+  </Step>
+</Steps>
+
+## Verifying Your Installation
+
+After installation, verify everything is working correctly:
+
+### Check Plugin Status
+
+Run the Packer status command:
+
+```vim
+:PackerStatus
+```
+
+You should see all plugins listed with their installation status. A properly installed plugin shows a green checkmark.
+
+### Check LSP Servers
+
+Verify Mason has installed the language servers:
+
+```vim
+:Mason
+```
+
+You should see the configured servers (lua_ls, pyright, jsonls) marked as installed.
+
+### Test Key Bindings
+
+Try some basic keybindings to ensure everything is working:
+
+- Press `<Space>` (the leader key) - You should see WhichKey popup showing available commands
+- Press `<Space>f` to see file-related commands
+- Press `<Space>ff` to open Telescope file finder
+- Press `<Space>e` to toggle the file explorer (nvim-tree)
+
+## Configuration Files
+
+The configuration is automatically loaded through the main entry point:
+
+```lua title="init.lua"
+require "user.options"
+require "user.keymaps"
+require "user.plugins"
+require "user.colorscheme"
+require "user.cmp"
+require "user.lsp"
+require "user.telescope"
+require "user.gitsigns"
+require "user.treesitter"
+require "user.autopairs"
+require "user.comment"
+require "user.nvim-tree"
+require "user.bufferline"
+require "user.lualine"
+require "user.toggleterm"
+require "user.project"
+require "user.impatient"
+require "user.indentline"
+require "user.alpha"
+require "user.whichkey"
+require "user.autocommands"
+```
+
+Each `require` statement loads a specific module from the `lua/user/` directory. This modular approach makes it easy to understand and customize each aspect of the configuration.
+
+## Updating the Configuration
+
+To update Neovim from Scratch to the latest version:
+
+```bash
+cd ~/.config/nvim
+git pull
+```
+
+Then open Neovim and sync plugins:
+
+```vim
+:PackerSync
+```
+
+<Warning>
+The master branch uses pinned plugin versions for stability. Updates to the repository may include new pinned versions. If you've customized plugin commits in `lua/user/plugins.lua`, be aware that pulling updates may override your changes.
+</Warning>
+
+## Troubleshooting
+
+### Plugins Fail to Install
+
+If plugins fail to install:
+
+1. Check your internet connection
+2. Remove the Packer installation and try again:
+   ```bash
+   rm -rf ~/.local/share/nvim/site/pack/packer
+   ```
+3. Reopen Neovim to trigger automatic reinstallation
+
+### LSP Not Working
+
+If language servers aren't working:
+
+1. Open Mason and ensure servers are installed: `:Mason`
+2. Check LSP status: `:LspInfo`
+3. Verify Mason installation path has correct permissions
+4. Try manually installing a server: `:MasonInstall lua_ls`
+
+### Treesitter Errors
+
+If you see Treesitter errors:
+
+1. Update Treesitter parsers: `:TSUpdate`
+2. Check installed parsers: `:TSInstallInfo`
+3. Ensure you have a C compiler installed (required for Treesitter)
+
+### Configuration Not Loading
+
+If your configuration isn't loading:
+
+1. Verify the installation path: `~/.config/nvim` should contain `init.lua`
+2. Check for syntax errors: `nvim --headless +"lua print('Config OK')" +q`
+3. Look for errors in `:messages`
+
+## Next Steps
+
+Now that you have Neovim from Scratch installed, you should:
+
+1. Complete the [Prerequisites](/prerequisites) checks to ensure full functionality
+2. Explore the [Key Mappings](/configuration/keymaps) to learn the most important shortcuts
+3. Understand the [Configuration](/configuration/options) to customize your setup
+4. Learn about [Plugin Management](/configuration/plugins) to add or remove plugins

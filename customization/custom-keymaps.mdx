@@ -1,0 +1,370 @@
+---
+title: Custom Keymaps
+description: Learn how to add and customize keybindings in your Neovim configuration
+---
+
+Keymaps in Neovim from Scratch are configured in two main locations: `lua/user/keymaps.lua` for general keybindings and `lua/user/whichkey.lua` for leader-based keymaps with visual feedback.
+
+## Understanding the Keymap System
+
+### Leader Key
+
+The leader key is set to `<Space>` (spacebar):
+
+```lua
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+```
+
+This means most custom commands start with the spacebar.
+
+### Vim Modes
+
+Keymaps can be set for different modes:
+
+- `n` - Normal mode
+- `i` - Insert mode
+- `v` - Visual mode
+- `x` - Visual block mode
+- `t` - Terminal mode
+- `c` - Command mode
+- `""` - All modes
+
+## Adding Basic Keymaps
+
+### The keymap Function
+
+Keymaps are created using `vim.keymap.set`:
+
+```lua
+local keymap = vim.keymap.set
+
+local opts = { noremap = true, silent = true }
+
+keymap("n", "<C-s>", ":w<CR>", opts)
+```
+
+### Keymap Options
+
+```lua
+local opts = { 
+  noremap = true,  -- Don't use recursive mapping
+  silent = true    -- Don't show command in command line
+}
+
+local term_opts = { silent = true }  -- For terminal mode
+```
+
+## Examples from the Codebase
+
+### Window Navigation
+
+Navigate between splits using `Ctrl+h/j/k/l`:
+
+```lua
+keymap("n", "<C-h>", "<C-w>h", opts)
+keymap("n", "<C-j>", "<C-w>j", opts)
+keymap("n", "<C-k>", "<C-w>k", opts)
+keymap("n", "<C-l>", "<C-w>l", opts)
+```
+
+### Window Resizing
+
+Resize windows with arrow keys:
+
+```lua
+keymap("n", "<C-Up>", ":resize -2<CR>", opts)
+keymap("n", "<C-Down>", ":resize +2<CR>", opts)
+keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
+keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
+```
+
+### Buffer Navigation
+
+Switch between buffers using `Shift+h/l`:
+
+```lua
+keymap("n", "<S-l>", ":bnext<CR>", opts)
+keymap("n", "<S-h>", ":bprevious<CR>", opts)
+```
+
+### Moving Text
+
+Move lines up and down with `Alt+j/k`:
+
+```lua
+-- Normal mode
+keymap("n", "<A-j>", ":m .+1<CR>==", opts)
+keymap("n", "<A-k>", ":m .-2<CR>==", opts)
+
+-- Visual mode
+keymap("v", "<A-j>", ":m '>+1<CR>gv=gv", opts)
+keymap("v", "<A-k>", ":m '<-2<CR>gv=gv", opts)
+```
+
+### Quick Insert Mode Exit
+
+Exit insert mode by pressing `jk` or `kj`:
+
+```lua
+keymap("i", "jk", "<ESC>", opts)
+keymap("i", "kj", "<ESC>", opts)
+```
+
+### Visual Mode Indentation
+
+Stay in indent mode after indenting:
+
+```lua
+keymap("v", "<", "<gv^", opts)
+keymap("v", ">", ">gv^", opts)
+```
+
+### Better Paste
+
+Paste over text without yanking the replaced text:
+
+```lua
+keymap("v", "p", '"_dP', opts)
+```
+
+## Adding Leader-Based Keymaps
+
+Leader keymaps are defined in `lua/user/whichkey.lua` and provide visual feedback through the which-key plugin.
+
+### Which-Key Structure
+
+```lua
+local mappings = {
+  ["a"] = { "<cmd>Alpha<cr>", "Alpha" },
+  ["e"] = { "<cmd>NvimTreeToggle<cr>", "Explorer" },
+  ["w"] = { "<cmd>w!<CR>", "Save" },
+  ["q"] = { "<cmd>q!<CR>", "Quit" },
+}
+```
+
+These create keymaps like:
+- `<leader>a` - Open Alpha dashboard
+- `<leader>e` - Toggle file explorer
+- `<leader>w` - Save file
+- `<leader>q` - Quit Neovim
+
+### Grouped Keymaps
+
+Create submenu groups for related commands:
+
+```lua
+local mappings = {
+  g = {
+    name = "Git",
+    g = { "<cmd>lua _LAZYGIT_TOGGLE()<CR>", "Lazygit" },
+    j = { "<cmd>lua require 'gitsigns'.next_hunk()<cr>", "Next Hunk" },
+    k = { "<cmd>lua require 'gitsigns'.prev_hunk()<cr>", "Prev Hunk" },
+    l = { "<cmd>lua require 'gitsigns'.blame_line()<cr>", "Blame" },
+    p = { "<cmd>lua require 'gitsigns'.preview_hunk()<cr>", "Preview Hunk" },
+  },
+}
+```
+
+This creates:
+- `<leader>gg` - Open Lazygit
+- `<leader>gj` - Next git hunk
+- `<leader>gk` - Previous git hunk
+- `<leader>gl` - Git blame line
+- `<leader>gp` - Preview git hunk
+
+### Telescope Integration
+
+Keymaps for fuzzy finding:
+
+```lua
+["f"] = {
+  "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{previewer = false})<cr>",
+  "Find files",
+},
+["F"] = { "<cmd>Telescope live_grep theme=ivy<cr>", "Find Text" },
+["b"] = {
+  "<cmd>lua require('telescope.builtin').buffers(require('telescope.themes').get_dropdown{previewer = false})<cr>",
+  "Buffers",
+},
+```
+
+### LSP Keymaps
+
+Language server protocol commands:
+
+```lua
+l = {
+  name = "LSP",
+  a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
+  d = { "<cmd>Telescope diagnostics bufnr=0<cr>", "Document Diagnostics" },
+  f = { "<cmd>lua vim.lsp.buf.format{async=true}<cr>", "Format" },
+  i = { "<cmd>LspInfo<cr>", "Info" },
+  r = { "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename" },
+  s = { "<cmd>Telescope lsp_document_symbols<cr>", "Document Symbols" },
+},
+```
+
+## Adding Your Own Keymaps
+
+### Method 1: Simple Keymaps in keymaps.lua
+
+For mode-specific keymaps without leader key:
+
+**Edit `lua/user/keymaps.lua`:**
+
+```lua
+local opts = { noremap = true, silent = true }
+local keymap = vim.keymap.set
+
+-- Add your custom keymaps
+keymap("n", "<C-s>", ":w<CR>", opts)  -- Save with Ctrl+s
+keymap("n", "<C-q>", ":q<CR>", opts)  -- Quit with Ctrl+q
+keymap("n", "<leader>nh", ":nohl<CR>", opts)  -- Clear search highlight
+```
+
+### Method 2: Leader Keymaps in whichkey.lua
+
+For leader-based keymaps with documentation:
+
+**Edit `lua/user/whichkey.lua` mappings table:**
+
+```lua
+local mappings = {
+  -- Existing mappings...
+  
+  -- Add custom single keymaps
+  ["r"] = { "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename" },
+  ["k"] = { "<cmd>lua vim.lsp.buf.hover()<cr>", "Hover Documentation" },
+  
+  -- Add custom grouped keymaps
+  d = {
+    name = "Debug",
+    b = { "<cmd>lua require'dap'.toggle_breakpoint()<cr>", "Toggle Breakpoint" },
+    c = { "<cmd>lua require'dap'.continue()<cr>", "Continue" },
+    s = { "<cmd>lua require'dap'.step_over()<cr>", "Step Over" },
+  },
+}
+```
+
+## Practical Examples
+
+### Example 1: Quick File Operations
+
+```lua
+-- In lua/user/whichkey.lua
+f = {
+  name = "File",
+  s = { "<cmd>w<cr>", "Save" },
+  q = { "<cmd>q<cr>", "Quit" },
+  x = { "<cmd>x<cr>", "Save and Quit" },
+  e = { "<cmd>e ~/.config/nvim/init.lua<cr>", "Edit Config" },
+  r = { "<cmd>source %<cr>", "Reload File" },
+},
+```
+
+### Example 2: Terminal Integration
+
+```lua
+-- In lua/user/whichkey.lua
+t = {
+  name = "Terminal",
+  f = { "<cmd>ToggleTerm direction=float<cr>", "Float" },
+  h = { "<cmd>ToggleTerm size=10 direction=horizontal<cr>", "Horizontal" },
+  v = { "<cmd>ToggleTerm size=80 direction=vertical<cr>", "Vertical" },
+  p = { "<cmd>lua _PYTHON_TOGGLE()<cr>", "Python" },
+},
+```
+
+### Example 3: Custom Lua Function
+
+Create a keymap that runs a custom Lua function:
+
+**Step 1:** Define your function in `lua/user/functions.lua`:
+
+```lua
+local M = {}
+
+M.hello_world = function()
+  print("Hello from custom function!")
+end
+
+M.open_config = function()
+  vim.cmd("e ~/.config/nvim/init.lua")
+end
+
+return M
+```
+
+**Step 2:** Add keymap in `lua/user/whichkey.lua`:
+
+```lua
+["H"] = { "<cmd>lua require('user.functions').hello_world()<cr>", "Hello World" },
+["C"] = { "<cmd>lua require('user.functions').open_config()<cr>", "Open Config" },
+```
+
+## Viewing Current Keymaps
+
+### Using Which-Key
+
+Press `<leader>` and wait - which-key will show all available leader keymaps.
+
+### Using Telescope
+
+Search all keymaps:
+
+```
+<leader>sk  (or :Telescope keymaps)
+```
+
+### Using Vim Commands
+
+```vim
+:map          " Show all mappings
+:nmap         " Show normal mode mappings
+:imap         " Show insert mode mappings
+:vmap         " Show visual mode mappings
+```
+
+## Keymap Best Practices
+
+1. **Use mnemonic leaders** - `g` for git, `l` for LSP, `f` for find
+2. **Document your keymaps** - Use which-key for self-documentation
+3. **Avoid conflicts** - Check existing keymaps before adding new ones
+4. **Group related commands** - Use which-key groups for organization
+5. **Use silent option** - Prevent command display in command line
+6. **Test thoroughly** - Ensure keymaps work in the intended mode
+
+## Special Key Notations
+
+- `<CR>` - Enter/Return
+- `<Space>` - Space bar
+- `<BS>` - Backspace
+- `<Tab>` - Tab key
+- `<S-...>` - Shift + key
+- `<C-...>` - Control + key
+- `<A-...>` or `<M-...>` - Alt/Meta + key
+- `<leader>` - Leader key (Space)
+- `<cmd>...<cr>` - Execute command
+
+## Troubleshooting
+
+### Keymap Not Working
+
+1. Check mode is correct (normal, insert, visual)
+2. Verify no conflicting mappings
+3. Test command manually first
+4. Check plugin is loaded (for plugin commands)
+
+### Which-Key Not Showing
+
+1. Ensure which-key plugin is installed
+2. Check `lua/user/whichkey.lua` is loaded
+3. Verify mapping is in the `mappings` table
+4. Run `:WhichKey` manually to test
+
+## Next Steps
+
+- [Add New Plugins](/customization/adding-plugins)
+- [Configure LSP Servers](/customization/lsp-servers)
+- [Customize Colorschemes](/customization/colorschemes)

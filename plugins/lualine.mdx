@@ -1,0 +1,301 @@
+---
+title: "Lualine"
+description: "Configure lualine.nvim for a fast and customizable statusline"
+---
+
+## Overview
+
+Lualine is a blazing fast and highly customizable statusline written in pure Lua. It provides information about the current buffer, git status, diagnostics, and more.
+
+**Plugin**: [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim)
+
+**Config File**: `lua/user/lualine.lua`
+
+## Features
+
+- Fast performance
+- Automatic theme detection
+- Git branch and diff indicators
+- LSP diagnostics display
+- Custom progress indicator
+- Responsive design (hides components on narrow windows)
+
+## Statusline Layout
+
+The statusline is divided into sections:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│ A: Branch, Diagnostics │ B: Mode │ C: │ X: Diff, Spaces, Encoding, Filetype │ Y: Location │ Z: Progress │
+└────────────────────────────────────────────────────────────┘
+```
+
+### Active Sections
+
+| Section | Components | Description |
+|---------|------------|-------------|
+| lualine_a | branch, diagnostics | Git branch and error/warning counts |
+| lualine_b | mode | Current mode (NORMAL, INSERT, etc.) |
+| lualine_c | - | Empty (available for custom content) |
+| lualine_x | diff, spaces, encoding, filetype | Git changes, indentation, file encoding and type |
+| lualine_y | location | Cursor line and column |
+| lualine_z | progress | Custom visual progress bar |
+
+```lua
+sections = {
+  lualine_a = { branch, diagnostics },
+  lualine_b = { mode },
+  lualine_c = {},
+  lualine_x = { diff, spaces, "encoding", filetype },
+  lualine_y = { location },
+  lualine_z = { progress },
+}
+```
+
+## Component Configuration
+
+### Branch Component
+
+Displays the current Git branch with an icon:
+
+```lua
+local branch = {
+  "branch",
+  icons_enabled = true,
+  icon = "",
+}
+```
+
+### Diagnostics Component
+
+Shows LSP error and warning counts:
+
+```lua
+local diagnostics = {
+  "diagnostics",
+  sources = { "nvim_diagnostic" },
+  sections = { "error", "warn" },
+  symbols = { error = " ", warn = " " },
+  colored = false,
+  update_in_insert = false,
+  always_visible = true,
+}
+```
+
+### Mode Component
+
+Displays the current Vim mode with custom formatting:
+
+```lua
+local mode = {
+  "mode",
+  fmt = function(str)
+    return "-- " .. str .. " --"
+  end,
+}
+```
+
+Example output: `-- NORMAL --`, `-- INSERT --`
+
+### Diff Component
+
+Shows git changes (only visible on wider windows):
+
+```lua
+local diff = {
+  "diff",
+  colored = false,
+  symbols = { 
+    added = " ", 
+    modified = " ", 
+    removed = " " 
+  },
+  cond = hide_in_width
+}
+```
+
+### Spaces Component
+
+Displays the current indentation setting:
+
+```lua
+local spaces = function()
+  return "spaces: " .. vim.api.nvim_buf_get_option(0, "shiftwidth")
+end
+```
+
+Example output: `spaces: 2` or `spaces: 4`
+
+### Filetype Component
+
+Shows filetype without icons:
+
+```lua
+local filetype = {
+  "filetype",
+  icons_enabled = false,
+  icon = nil,
+}
+```
+
+### Location Component
+
+Displays cursor position:
+
+```lua
+local location = {
+  "location",
+  padding = 0,
+}
+```
+
+Example output: `42:16` (line 42, column 16)
+
+### Progress Component
+
+Custom visual progress bar showing position in file:
+
+```lua
+local progress = function()
+  local current_line = vim.fn.line(".")
+  local total_lines = vim.fn.line("$")
+  local chars = { "__", "▁▁", "▂▂", "▃▃", "▄▄", "▅▅", "▆▆", "▇▇", "██" }
+  local line_ratio = current_line / total_lines
+  local index = math.ceil(line_ratio * #chars)
+  return chars[index]
+end
+```
+
+## Responsive Design
+
+Components can hide on narrow windows:
+
+```lua
+local hide_in_width = function()
+  return vim.fn.winwidth(0) > 80
+end
+```
+
+The diff component uses this condition to hide when window width is 80 characters or less.
+
+## Theme
+
+Lualine automatically detects and applies your colorscheme:
+
+```lua
+options = {
+  theme = "auto",
+}
+```
+
+### Available Themes
+
+Change to a specific theme:
+
+```lua
+theme = "gruvbox",
+-- or: "tokyonight", "nord", "onedark", etc.
+```
+
+## Separators
+
+The configuration uses minimal separators:
+
+```lua
+component_separators = { left = "", right = "" },
+section_separators = { left = "", right = "" },
+```
+
+### Powerline Separators
+
+For a more traditional powerline look:
+
+```lua
+component_separators = { left = "", right = "" },
+section_separators = { left = "", right = "" },
+```
+
+## Disabled Filetypes
+
+Lualine is hidden in these special buffers:
+
+```lua
+disabled_filetypes = { "alpha", "dashboard", "NvimTree", "Outline" },
+```
+
+## Inactive Sections
+
+Simplified statusline for inactive windows:
+
+```lua
+inactive_sections = {
+  lualine_a = {},
+  lualine_b = {},
+  lualine_c = { "filename" },
+  lualine_x = { "location" },
+  lualine_y = {},
+  lualine_z = {},
+}
+```
+
+## Customization Examples
+
+### Add LSP Server Name
+
+```lua
+local lsp_name = function()
+  local clients = vim.lsp.get_active_clients()
+  if next(clients) == nil then
+    return "No LSP"
+  end
+  return clients[1].name
+end
+
+-- Add to lualine_x:
+lualine_x = { lsp_name, diff, spaces, "encoding", filetype },
+```
+
+### Show Current Time
+
+```lua
+local time = function()
+  return os.date("%H:%M")
+end
+
+-- Add to lualine_z:
+lualine_z = { time, progress },
+```
+
+### Enable Colored Diff
+
+```lua
+local diff = {
+  "diff",
+  colored = true, -- Enable colors
+  symbols = { added = " ", modified = " ", removed = " " },
+  cond = hide_in_width
+}
+```
+
+### Add Info and Hint Diagnostics
+
+```lua
+local diagnostics = {
+  "diagnostics",
+  sources = { "nvim_diagnostic" },
+  sections = { "error", "warn", "info", "hint" },
+  symbols = { 
+    error = " ", 
+    warn = " ",
+    info = " ",
+    hint = " "
+  },
+  colored = false,
+}
+```
+
+## Related Configuration
+
+- [Bufferline](/plugins/bufferline) - Complementary buffer tabs
+- [LSP](/lsp/overview) - Provides diagnostic information
+- [Gitsigns](/plugins/gitsigns) - Provides git diff data
