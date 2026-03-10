@@ -1,0 +1,111 @@
+{
+  "projectType": "general",
+  "projectName": "Neovim from Scratch",
+  "projectDescription": "A Neovim configuration designed from scratch to be understandable and educational.",
+  "theme": "aspen",
+  "primaryColor": "#b36c6e",
+  "lightColor": "#0a0707",
+  "darkColor": "#935557",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "prerequisites"
+        ]
+      },
+      {
+        "group": "Core Configuration",
+        "pages": [
+          "configuration/options",
+          "configuration/keymaps",
+          "configuration/plugins",
+          "configuration/colorschemes",
+          "configuration/autocommands"
+        ]
+      },
+      {
+        "group": "LSP & Completion",
+        "pages": [
+          "lsp/overview",
+          "lsp/mason",
+          "lsp/handlers",
+          "lsp/null-ls",
+          "completion/nvim-cmp",
+          "completion/snippets"
+        ]
+      },
+      {
+        "group": "UI Plugins",
+        "pages": [
+          "plugins/alpha",
+          "plugins/bufferline",
+          "plugins/lualine",
+          "plugins/nvim-tree",
+          "plugins/indent-blankline",
+          "plugins/which-key"
+        ]
+      },
+      {
+        "group": "Editor Features",
+        "pages": [
+          "plugins/telescope",
+          "plugins/treesitter",
+          "plugins/gitsigns",
+          "plugins/comment",
+          "plugins/autopairs",
+          "plugins/toggleterm",
+          "plugins/project"
+        ]
+      },
+      {
+        "group": "Customization",
+        "pages": [
+          "customization/adding-plugins",
+          "customization/custom-keymaps",
+          "customization/lsp-servers",
+          "customization/colorschemes"
+        ]
+      },
+      {
+        "group": "Resources",
+        "pages": [
+          "troubleshooting",
+          "faq",
+          "contributing"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Modular Lua configuration structure",
+    "Pre-configured LSP support with Mason",
+    "Advanced completion with nvim-cmp",
+    "Treesitter syntax highlighting",
+    "Git integration with Gitsigns",
+    "Fuzzy finding with Telescope",
+    "Beautiful UI with statusline and bufferline",
+    "File explorer with nvim-tree",
+    "Terminal integration with toggleterm",
+    "Project management"
+  ],
+  "publicApiSurface": [
+    "lua/user/options.lua - Editor options configuration",
+    "lua/user/keymaps.lua - Keybinding configuration",
+    "lua/user/plugins.lua - Plugin management with Packer",
+    "lua/user/lsp/ - LSP configuration modules",
+    "lua/user/cmp.lua - Completion configuration",
+    "lua/user/telescope.lua - Fuzzy finder configuration",
+    "lua/user/treesitter.lua - Treesitter configuration",
+    "lua/user/gitsigns.lua - Git integration",
+    "lua/user/nvim-tree.lua - File explorer",
+    "lua/user/lualine.lua - Statusline configuration",
+    "lua/user/bufferline.lua - Buffer tabs configuration",
+    "lua/user/toggleterm.lua - Terminal configuration",
+    "lua/user/whichkey.lua - Keybinding helper",
+    "lua/user/alpha.lua - Dashboard configuration",
+    "init.lua - Main entry point"
+  ]
+}
